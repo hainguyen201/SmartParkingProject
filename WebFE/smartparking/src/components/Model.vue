@@ -15,7 +15,7 @@
             </el-select>
           </el-col>
           <el-col :span="4">
-            <el-button @click="dialogAddForm = true"> Thêm mô hình</el-button>
+            <el-button @click="dialogAddForm = true" type="primary" round> Thêm mô hình</el-button>
           </el-col>
           <el-dialog title="Thêm mô hình " :visible.sync="dialogAddForm">
             <el-form :model="form">
@@ -36,23 +36,23 @@
         </el-row>
         <h4 class="model-title">Thông tin mô hình dự đoán biển số xe</h4>
         <el-row>
-          <el-col :span="6">Tên mô hình</el-col>
+          <el-col :span="6">Tên mô hình: </el-col>
           <el-col :span="6">{{ modelView.name }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="6">Url</el-col>
+          <el-col :span="6">Url: </el-col>
           <el-col :span="6">{{ modelView.url }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="6">Ngày tạo</el-col>
+          <el-col :span="6">Ngày tạo: </el-col>
           <el-col :span="6">{{ dateFormat(modelView.createdDate) }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="6">Ngày cập nhật</el-col>
+          <el-col :span="6">Ngày cập nhật: </el-col>
           <el-col :span="6">{{ dateFormat(modelView.modifiedDate) }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="6"><el-button @click="openEditDialog">Sửa mô hình</el-button></el-col>
+          <el-col :span="6"><el-button @click="openEditDialog" type="primary" round>Sửa mô hình</el-button></el-col>
           <el-dialog title="Sửa mô hình " :visible.sync="dialogEditForm">
             <el-form :model="form">
               <el-form-item
@@ -70,7 +70,7 @@
             </span>
           </el-dialog>
           <el-col :span="8">
-            <el-button @click="dialogDeleteVisible = true">Xóa mô hình</el-button>
+            <el-button @click="dialogDeleteVisible = true" type="danger" round>Xóa mô hình</el-button>
             <el-dialog
               title="Cảnh báo"
               :visible.sync="dialogDeleteVisible"
@@ -86,8 +86,18 @@
             </el-dialog>
           </el-col>
           <el-col :span="6"
-            ><span>Sử dụng</span> <el-switch v-model="isActive" @change="activeModel($event)"> </el-switch
-          ></el-col>
+            ><span>Sử dụng</span> <el-switch v-model="isActive" @change="activeModel($event)" :disabled="isDisabled"> </el-switch>
+          <el-dialog
+              title="Thông báo"
+              :visible.sync="dialogUseVisible"
+              :before-close="cancelUse"
+              width="30%">
+              <span>Xác nhận sử dụng mô hình {{modelView.name}}?</span>
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelUse">Cancel</el-button>
+                <el-button type="primary" @click="handleUseModel">Confirm</el-button>
+              </span>
+            </el-dialog></el-col>
         </el-row>
         <el-row :gutter="4" style="margin-top: 100px">
           <!-- <el-col :span="8">
@@ -116,16 +126,16 @@
       </el-col>
       <el-col :span="12">
         <el-row>
-          <el-col :span="12"
-            ><div>
+          <el-col :span="12">
+            <div>
               <img :src="previewImage" class="uploading-image" />
               <input
                 style="width: 150px"
                 type="file"
                 accept="image/jpeg"
-                @change="uploadImage"
-              /></div
-          ></el-col>
+                @change="uploadImage"/>
+            </div>
+          </el-col>
           <el-col :span="12">
             <img :src="licenseImage" class="uploading-image" />
 
@@ -139,7 +149,7 @@
             </h4>
           </el-col>
           <el-col style="margin-top: 32px">
-            <el-button @click="runModel">Chạy mô hình</el-button>
+            <el-button @click="runModel" type="primary" round>Chạy mô hình</el-button>
           </el-col>
         </el-row>
       </el-col>
@@ -194,6 +204,7 @@ export default {
       dialogDeleteVisible: false,
       dialogAddForm: false,
       dialogEditForm: false,
+      dialogUseVisible: false,
       form: {
           name: '',
           region: '',
@@ -237,10 +248,11 @@ export default {
       predictResult: "",
       isDeleteModel: false,
       licenseImage: "",
+      isDisabled: false,
     };
   },
   methods: {
-    ...mapActions(["getLicense", "getAllModel", "addModel", "getModelById", "deleteModel", "updateModelService"]),
+    ...mapActions(["getLicense", "getAllModel", "addModel", "getModelById", "deleteModel", "updateModelService", "useModelStatusService"]),
     
     uploadImage(e) {
       const image = e.target.files[0];
@@ -252,18 +264,17 @@ export default {
         this.licenseImage = "";
       };
     },
-    async runModel() {
+    runModel() {
       let fd = new FormData();
       
       fd.append("image", this.previewImage);
       console.log("before: ", fd)
-      const response = await axios.post("http://localhost:8787/license", fd, BaseModel.configFormDataHeader);
-      this.licenseImage = "data:image/jpeg;base64," + response.data.license;
-      this.predictResult = response.data.code;
-      // this.getLicense(this.modelView.url, fd).then((data) => {
-      //   this.licenseImage = "data:image/jpeg;base64," + data.license;
-      //   this.predictResult = data.code;
-      // });
+      fd.append("url",this.modelView.url);
+      
+      this.getLicense(fd).then((data) => {
+        this.licenseImage = "data:image/jpeg;base64," + data.license;
+        this.predictResult = data.code;
+      });
     },
     addNewModel(){
       this.modelAdd.status=0
@@ -279,6 +290,7 @@ export default {
         if(element.id==index){
           this.modelView=element;
           this.isActive=element.status==1?true:false
+          this.isDisabled=this.isActive
         }
       });
     },
@@ -288,6 +300,10 @@ export default {
         this.dialogDeleteVisible=false;
         this.reload();
       })
+    },
+    cancelUse(){
+      this.dialogUseVisible = false;
+      this.isActive=false;
     },
     reload(){
       this.models=[];
@@ -314,10 +330,16 @@ export default {
     },
     activeModel(e){
       if(e==true){
-
+        this.dialogUseVisible=true
       }
-      console.log(e)
       
+    },
+    handleUseModel(){
+      console.log('ok use')
+      this.dialogUseVisible=false;
+      this.useModelStatusService(this.modelView.id);
+      this.reload();
+      this.isDisabled=true;
     },
     dateFormat(value) {
       if (value) {

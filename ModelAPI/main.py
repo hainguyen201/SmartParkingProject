@@ -2,7 +2,7 @@ import cv2
 from license_detection import predict_license
 from flask import Flask
 from flask import send_file
-from flask import request, jsonify
+from flask import request, jsonify, Response
 from flask_cors import CORS, cross_origin
 import base64
 from PIL import Image
@@ -49,4 +49,20 @@ def get_license_code():
         }
 
 
+def gen_frames():
+    camera = cv2.VideoCapture('http://192.168.1.2:4747/video')
+    while True:
+        success, frame=camera.read()
+        if not success:
+            break
+        else:
+            ret, buffer=cv2.imencode('.jpg', frame)
+            frame=buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
+
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 app.run(host='localhost', port=8787)

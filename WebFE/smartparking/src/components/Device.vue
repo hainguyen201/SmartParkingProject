@@ -47,7 +47,7 @@
         <el-table-column prop="name" label="Vị trí" width="120">
         </el-table-column>
         <el-table-column  width="120">
-          <template slot-scope="scope">
+          <template >
             <el-button @click="handleClick" type="text" size="small"
               >Chi tiết</el-button
             >

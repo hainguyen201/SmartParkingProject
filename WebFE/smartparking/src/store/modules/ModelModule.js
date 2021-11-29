@@ -9,20 +9,17 @@ const getters = {
     
 };
 const actions = {
-    async getLicense({ commit }, modelUrl, fd) {
+    async getLicense({ commit }, fd) {
         console.log("after:", fd)
-        if(modelUrl === null || modelUrl === ''){
+        if(fd.get("url") === null || fd.get("url") === ''){
             
             const response = await axios.post("http://localhost:8787/license", fd, BaseModel.configFormDataHeader);
             console.error("model url is null, run temprory");
             return response.data;
         }else{
-            const response = await axios.post(modelUrl, fd, BaseModel.configFormDataHeader);
-            
+            const response = await axios.post(fd.get("url"), fd, BaseModel.configFormDataHeader);
             return response.data;
-        }
-        
-        
+        }  
     },
     async getAllModel({commit}){
         const response= await axios.get(BaseModel.baseUrlModel);
@@ -42,6 +39,10 @@ const actions = {
     },
     async updateModelService({commit}, model){
         const response= await axios.put(BaseModel.baseUrlModel+'/'+model.id,model, BaseModel.configJsonHeader)
+        return response.data;
+    },
+    async useModelStatusService({commit},  id){
+        const response= await axios.put(BaseModel.baseUrlModel+'/status/'+id)
         return response.data;
     }
 }

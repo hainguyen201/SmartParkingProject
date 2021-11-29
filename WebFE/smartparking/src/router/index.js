@@ -8,6 +8,7 @@ import Model from '@/components/Model'
 import Login from '@/components/Login'
 import Manager from '@/components/Manager'
 import Register from '@/components/Register'
+import Entrance from '@/components/Entrance'
 
 Vue.use(Router)
 export default new Router({
@@ -36,6 +37,10 @@ export default new Router({
         {
           path:'/models',
           component:Model
+        },
+        {
+          path:'/entrances',
+          component: Entrance
         }
       ]
     },

@@ -27,8 +27,8 @@
         text-color="#fff"
         active-text-color="#ffd04b"
         style="height:100%">
-        <el-menu-item index="1" @click="handleUser">
-          <span>Quản lý user </span>
+        <el-menu-item index="1" @click="handleEntrance">
+          <span>Giám sát xe ra vào </span>
         </el-menu-item>
         <el-menu-item index="2" @click="handleParking">
           <span>Quản lý bãi đỗ</span>
@@ -42,9 +42,16 @@
         <el-menu-item index="5" @click="handleModel">
           <span>Quản lý mô hình</span>
         </el-menu-item>
+        <el-menu-item index="6" @click="handleUser">
+          <span>Quản lý user </span>
+        </el-menu-item>
       </el-menu>
     </el-col>
-    <el-col :span="18" style="margin: 8px 0px 0px 8px"><router-view/></el-col>
+    <el-col :span="18" style="margin: 8px 0px 0px 8px">
+      <keep-alive>
+        <router-view/>
+      </keep-alive>
+    </el-col>
     
   </el-row>
 </div>
@@ -79,6 +86,10 @@ export default {
     },
     handleLogout(){
       console.log("Logout ");
+    },
+    handleEntrance(){
+      if(!(this.$router.history.current.path==="/entrances"))
+        this.$router.push('/entrances')
     }
   }
 }
