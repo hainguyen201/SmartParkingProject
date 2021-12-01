@@ -183,10 +183,8 @@
 }
 </style>
 <script>
-import { mapActions, mapGetters } from "Vuex";
+import { mapActions } from "Vuex";
 import moment from 'moment'
-import axios from 'axios'
-import BaseModel from '../store/modules/BaseModel'
 export default {
   name: "Model",
   data() {

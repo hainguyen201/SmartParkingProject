@@ -1,7 +1,7 @@
 package com.hust.smartparking.controller;
 
 import com.hust.smartparking.entity.Model;
-import com.hust.smartparking.service.ModelService;
+import com.hust.smartparking.service.impl.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

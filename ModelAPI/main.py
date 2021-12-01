@@ -11,6 +11,8 @@ from io import BytesIO
 from character_classification import get_character
 from character_detection import char_detection
 import os, shutil
+import time
+
 
 
 def clear_folder():
@@ -49,20 +51,18 @@ def get_license_code():
         }
 
 
-def gen_frames():
-    camera = cv2.VideoCapture('http://192.168.1.2:4747/video')
-    while True:
-        success, frame=camera.read()
-        if not success:
-            break
-        else:
-            ret, buffer=cv2.imencode('.jpg', frame)
-            frame=buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
-
-
-@app.route('/video_feed')
+@app.route('/vehicle_images', methods=['POST'])
 def video_feed():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    json_request=request.get_json()
+    camera_ip=json_request['camera_ip']
+    cv2.imwrite('vehicle_images/license.jpg', gen_image(camera_ip))
+    return 'ok'
+def gen_image(camera_ip):
+    camera = cv2.VideoCapture(camera_ip)
+    time.sleep(3)
+    success, frame = camera.read()
+    if not success:
+        return gen_image(camera_ip)
+    else:
+        return frame
 app.run(host='localhost', port=8787)

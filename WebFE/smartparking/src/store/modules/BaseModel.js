@@ -1,4 +1,5 @@
 const baseUrl="http://localhost:8089"
+const modelUrl="http://localhost:8787"
 const configJsonHeader={
     headers: {
         'Content-Type': 'application/json'
@@ -10,6 +11,7 @@ const configFormDataHeader={
     }
     
 }
+const modelUrlCaptureImage=modelUrl+"/vehicle_images"
 const baseUrlDevice=baseUrl+"/devices"
 const baseUrlUser=baseUrl+"/users"
 const baseUrlModel=baseUrl+"/models"
@@ -20,5 +22,6 @@ export default{
     baseUrlDevice,
     baseUrlVehicle,
     configJsonHeader,
-    configFormDataHeader
+    configFormDataHeader,
+    modelUrlCaptureImage
 }

@@ -1,7 +1,8 @@
-package com.hust.smartparking.service;
+package com.hust.smartparking.service.impl;
 
 import com.hust.smartparking.entity.Model;
 import com.hust.smartparking.repository.ModelRepository;
+import com.hust.smartparking.service.IModelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
-public class ModelService implements IModelService{
+public class ModelService implements IModelService {
     @Autowired private ModelRepository modelRepository;
     @Override
     public Iterable<Model> findAll(){

@@ -3,12 +3,10 @@ package com.hust.smartparking.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hust.smartparking.entity.User;
-import com.hust.smartparking.service.UserService;
-import com.sun.org.apache.xpath.internal.operations.Mod;
+import com.hust.smartparking.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +14,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Optional;
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class UserController {
     @Autowired private UserService userService;
