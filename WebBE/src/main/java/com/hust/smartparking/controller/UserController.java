@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hust.smartparking.entity.User;
 import com.hust.smartparking.service.impl.UserService;
 import com.hust.smartparking.utils.Utils;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Optional;
@@ -29,14 +31,15 @@ public class UserController {
         return userOptional.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    @PostMapping(value = "/users/")
+    @PostMapping(value = "/users")
     public ResponseEntity<User> addUser(@RequestParam(value = "user") String user,
-                                        @RequestParam(value= "avatar") MultipartFile avatar){
+                                        @RequestParam(value= "avatar", required = false) MultipartFile avatar){
         ObjectMapper objectMapper = new ObjectMapper();
         User user1= null;
         try {
             user1 = objectMapper.readValue(user, User.class);
             if(Utils.checkValidFile(avatar)){
+
                 user1.setAvatar(avatar.getBytes());
             }
             user1.setCreatedDate(new Timestamp(new Date().getTime()));

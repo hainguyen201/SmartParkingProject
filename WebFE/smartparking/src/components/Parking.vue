@@ -69,10 +69,10 @@
       </el-table-column>
     </el-table>
 
-    <el-row class="pagination">
+    <!-- <el-row class="pagination">
       <el-pagination layout="prev, pager, next" :total="10" :page-size="1">
       </el-pagination>
-    </el-row>
+    </el-row> -->
   </div>
 </template>
 <style scoped>

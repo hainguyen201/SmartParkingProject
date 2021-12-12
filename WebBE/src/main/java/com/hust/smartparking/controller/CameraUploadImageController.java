@@ -13,13 +13,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 @RestController
-public class uploadImageController {
+public class CameraUploadImageController {
 //    private final IStorageService storageService;
-    @PostMapping("/uploadImage")
-    public ResponseEntity<Object> upLoadImage(@RequestParam("imageFile")MultipartFile file){
+    @PostMapping("/entrances")
+    public ResponseEntity<Object> upLoadImage(@RequestParam("entranceImage")MultipartFile file,
+                                              @RequestParam("type")int type,
+                                              @RequestParam(value = "gateId", required = false)String gateId){
         try {
             File filePath = new File("src/main/resources/targetFile.jpg");
-
             try (OutputStream os = new FileOutputStream(filePath)) {
                  os.write(file.getBytes());
             }

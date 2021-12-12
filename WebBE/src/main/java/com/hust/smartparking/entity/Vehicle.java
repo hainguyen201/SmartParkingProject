@@ -14,7 +14,7 @@ public class Vehicle {
     @Column(name="id")
     private int id;
     @Column(name = "type")
-    private  int type;
+    private  Long type;
     @Column(name = "license_number")
     private  String licenseNumber;
     @Column(name = "entrance_image")

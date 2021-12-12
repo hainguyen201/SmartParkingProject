@@ -8,10 +8,10 @@
         <el-col :span="6">
           <el-input v-model="vehicleSearch.licenseNumber"></el-input>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="3">
           <span type="text">Loại phương tiện:</span>
         </el-col>
-        <el-col :span="5">
+        <el-col :span="6">
           <el-select v-model="vehicleSearch.type" placeholder="Select" clearable>
             <el-option v-for="item in vehicleTypeOption" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
@@ -30,7 +30,7 @@
           <span type="text">Đến</span>
         </el-col>
         <el-col :span="6">
-          <el-date-picker v-model="vehicleSearch.entranceTimeEnd" type="datetime"></el-date-picker>
+          <el-date-picker v-model="vehicleSearch.entranceTimeEnd"  type="datetime"></el-date-picker>
         </el-col>
       </el-row>
       <el-row :gutter="20">
@@ -38,13 +38,13 @@
           <span>Thời gian ra từ: </span>
         </el-col>
         <el-col :span="6">
-          <el-date-picker type="datetime" v-model="vehicleSearch.exitTimeStart"></el-date-picker>
+          <el-date-picker type="datetime"  v-model="vehicleSearch.exitTimeStart"></el-date-picker>
         </el-col>
         <el-col :span="3">
           <span type="text">Đến</span>
         </el-col>
         <el-col :span="6">
-          <el-date-picker type="datetime" v-model="vehicleSearch.exitTimeEnd"></el-date-picker>
+          <el-date-picker type="datetime"  v-model="vehicleSearch.exitTimeEnd"></el-date-picker>
         </el-col>
       </el-row>
       <el-row :gutter="4" type="flex" justify="start">
@@ -59,7 +59,7 @@
           <el-button type="primary" plain round @click="dialogAddVehicle = true;"><i class="el-icon-plus"></i> Thêm mới
           </el-button>
         </el-col>
-        <el-dialog title="Thêm thiết bị " :visible.sync="dialogAddVehicle">
+        <el-dialog title="Thêm phương tiện " :visible.sync="dialogAddVehicle">
           <el-form :model="vehicleAdd">
             <el-form-item label="Biển số" :label-width="formLabelWidth">
               <el-input v-model="vehicleAdd.licenseNumber"></el-input>
@@ -70,17 +70,28 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="Ảnh xe vào" :label-width="formLabelWidth">
-              <el-input v-model="vehicleAdd.entranceImage" type="file" ></el-input>
-            </el-form-item>
-            <el-form-item label="Ảnh xe ra" :label-width="formLabelWidth">
-              <el-input v-model="vehicleAdd.exitImage" type="file" ></el-input>
-            </el-form-item>
+
             <el-form-item label="Thời gian vào" :label-width="formLabelWidth">
-              <el-date-picker type="datetime" v-model="vehicleAdd.entranceTime" ></el-date-picker>
+              <el-date-picker type="datetime"  v-model="vehicleAdd.entranceTime">
+              </el-date-picker>
             </el-form-item>
             <el-form-item label="Thời gian ra" :label-width="formLabelWidth">
-              <el-date-picker type="datetime" v-model="vehicleAdd.exitTime" ></el-date-picker>
+              <el-date-picker type="datetime"  v-model="vehicleAdd.exitTime">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="Ảnh xe vào" :label-width="formLabelWidth">
+              <input type="file" :v-model="vehicleAdd.entranceImage" @change="previewAddEntranceImage" ref="addEntranceImage">
+              <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('addEntrance')"></el-button>
+              <div>
+                <img :src="previewAddEntranceSrc" alt="" class="preview-image">
+              </div>
+            </el-form-item>
+            <el-form-item label="Ảnh xe ra" :label-width="formLabelWidth">
+              <input :v-model="vehicleAdd.exitImage" type="file" @change="previewAddExitImage" ref="addExitImage">
+              <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('addExit')"></el-button>
+              <div>
+                <img :src="previewAddExitSrc" alt="" class="preview-image">
+              </div>
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
@@ -98,54 +109,75 @@
         </el-table-column>
         <el-table-column prop="type" label="Loại phương tiện" width="165">
         </el-table-column>
-        <el-table-column prop="entranceTime" label="Thời gian vào" width="120">
+        <el-table-column prop="entranceTime" label="Thời gian vào" width="160">
         </el-table-column>
-        <el-table-column prop="exitTime" label="Thời gian ra" width="120">
+        <el-table-column prop="exitTime" label="Thời gian ra" width="160">
         </el-table-column>
-        
+        <el-table-column prop="entranceImage" label="Ảnh xe vào" width="160">
+          <template slot-scope="scope">
+            <img :src="scope.row.entranceImage" alt="" style="height: 40px">
+          </template>
+        </el-table-column>
+        <el-table-column prop="exitImage" label="Ảnh xe ra" width="160">
+          <template slot-scope="scope">
+            <img :src="scope.row.exitImage" alt="" style="height: 40px">
+          </template>
+        </el-table-column>
+
         <el-table-column width="220">
           <template slot-scope="scope">
-            <el-button @click="openDialogDetail(scope.$index, scope.row)" type="text" size="small">Chi tiết</el-button>
-            <el-button @click="openDialogClone(scope.$index, scope.row)" type="text" size="small">Sao chép</el-button>
+            <!-- <el-button @click="openDialogDetail(scope.$index, scope.row)" type="text" size="small">Chi tiết</el-button> -->
+            <!-- <el-button @click="openDialogClone(scope.$index, scope.row)" type="text" size="small">Sao chép</el-button> -->
             <el-button @click="openDialogEdit(scope.$index, scope.row)" type="text" size="small">Sửa</el-button>
             <el-button type="text" size="small" @click="openDeleteDialog(scope.$index, scope.row)">Xóa</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog :title="dialogEditTitle " :visible.sync="dialogEditForm">
-        <el-form :model="deviceEdit">
-          <el-form-item label="Tên Thiết bị" :label-width="formLabelWidth">
-            <el-input v-model="deviceEdit.name"></el-input>
+      <el-dialog title="Sửa phương tiện" :visible.sync="dialogEditForm">
+        <el-form :model="vehicleEdit">
+          <el-form-item label="Biển số" :label-width="formLabelWidth">
+            <el-input v-model="vehicleEdit.licenseNumber"></el-input>
           </el-form-item>
-          <el-form-item label="Địa chỉ" :label-width="formLabelWidth">
-            <el-input v-model="deviceEdit.address"></el-input>
-          </el-form-item>
-          <el-form-item label="Loại Thiết bị" :label-width="formLabelWidth">
-            <el-select v-model="deviceEdit.type" clearable placeholder="Select">
+          <el-form-item label="Loại phương tiện" :label-width="formLabelWidth">
+            <el-select v-model="vehicleEdit.type" placeholder="Select" clearable>
               <el-option v-for="item in vehicleTypeOption" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="Trạng thái" :label-width="formLabelWidth">
-            <el-select v-model="deviceEdit.status" clearable placeholder="Select">
-              <el-option v-for="item in deviceStatusOption" :key="item.value" :label="item.label" :value="item.value">
-              </el-option>
-            </el-select>
+
+          <el-form-item label="Thời gian vào" :label-width="formLabelWidth">
+            <el-date-picker type="datetime" 
+              v-model="vehicleEdit.entranceTime"></el-date-picker>
           </el-form-item>
-          <el-form-item label="Mã vị trí" :label-width="formLabelWidth">
-            <el-input v-model="deviceEdit.positionId" type="number"></el-input>
+          <el-form-item label="Thời gian ra" :label-width="formLabelWidth">
+            <el-date-picker type="datetime"  v-model="vehicleEdit.exitTime">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="Ảnh xe vào" :label-width="formLabelWidth">
+            <input :v-model="vehicleEdit.entranceImage" type="file" @change="previewEditEntranceImage" ref="editEntranceImage">
+            <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('editEntrance')"></el-button>
+            <div>
+              <img :src="previewEditEntranceSrc" alt="" class="preview-image">
+            </div>
+          </el-form-item>
+          <el-form-item label="Ảnh xe ra" :label-width="formLabelWidth">
+            <input :v-model="vehicleEdit.exitImage" type="file" @change="previewEditExitImage" ref="editExitImage">
+            <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('editExit')"></el-button>
+            <div>
+              <img :src="previewEditExitSrc" alt="" class="preview-image">
+            </div>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogEditForm = false">Huỷ</el-button>
-          <el-button type="primary" @click="editDevice">Xác nhận</el-button>
+          <el-button type="primary" @click="editVehicle">Xác nhận</el-button>
         </span>
       </el-dialog>
       <el-dialog title="Cảnh báo" :visible.sync="dialogDeleteVisible" width="30%">
-        <span>Xác nhận xóa thiết bị {{deviceDelete.name}}?</span>
+        <span>Xác nhận xóa phương tiện {{vehicleDelete.type}} có biển số {{vehicleDelete.licenseNumber}}?</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogDeleteVisible = false">Huỷ</el-button>
-          <el-button type="primary" @click="deleteDevice">Xác nhận</el-button>
+          <el-button type="primary" @click="deleteVehicle">Xác nhận</el-button>
         </span>
       </el-dialog>
     </div>
@@ -168,6 +200,17 @@
     line-height: 40px;
     font-size: 16px;
   }
+  .preview-image{
+    height: 150px;
+    width: 150px;
+    margin-top: 8px;
+  }
+  .el-date-editor.el-input, .el-date-editor.el-input__inner{
+    width: 100%;
+  }
+  .el-select{
+    width: 100%;
+  }
 
 </style>
 <script>
@@ -180,12 +223,13 @@
     data() {
       return {
         vehicleSearch: {
-          address: '',
           id: null,
-          name: '',
-          positionId: null,
+          licenseNumber: null,
           type: null,
-          status: null
+          entranceTimeEnd: null,
+          entranceTimeStart: null,
+          exitTimeEnd: null,
+          exitTimeStart: null,
         },
         address: "",
         positionId: "",
@@ -215,112 +259,196 @@
             label: "Ô tô",
           },
         ],
-        deviceEdit: {
-          address: '',
+        vehicleEdit: {
           id: null,
-          name: '',
-          positionId: null,
+          licenseNumber: null,
           type: null,
-          createdDate: null,
-          modifiedDate: null,
-          status: null
+          entranceTime: null,
+          exitTime: null,
+          entranceImage: null,
+          exitImage: null,
         },
         vehicleAdd: {
-          address: '',
-          name: '',
-          positionId: null,
+          id: null,
+          licenseNumber: null,
           type: null,
-          createdDate: null,
-          modifiedDate: null,
-          status: null
+          entranceTime: null,
+          exitTime: null,
+          entranceImage: null,
+          exitImage: null,
         },
-        deviceDelete: {
-          address: '',
-          name: '',
-          positionId: null,
+        vehicleDelete: {
+          id: null,
+          licenseNumber: null,
           type: null,
-          createdDate: null,
-          modifiedDate: null,
-          status: null
-        }
+          entranceTime: null,
+          exitTime: null,
+          entranceImage: null,
+          exitImage: null,
+        },
+        // vehicleEditFile: {
+        //   entranceImage: null,
+        //   exitImage: null
+        // },
+        imageAddreview:[],
+        previewAddEntranceSrc:null,
+        previewAddExitSrc:null,
+        previewEditEntranceSrc:null,
+        previewEditExitSrc:null,
       };
     },
     methods: {
-      ...mapActions(["getAllVehicleService", "updateDeviceService", "addVehicleService", "deleteDeviceService",
-        "searchDeviesService"
+      ...mapActions(["getAllVehicleService", "editVehicleService", "addVehicleService", "deleteVehicleService",
+        "searchVehicleService"
       ]),
+      clearImage(type){
+        if(type==="addEntrance"){
+          this.$refs.addEntranceImage.value=null;
+          this.previewAddEntranceSrc=null;
+        }
+        if(type==="addExit"){
+          this.$refs.addExitImage.value=null;
+          this.previewAddExitSrc=null;
+        }
+        if(type==="editEntrance"){
+          this.$refs.editEntranceImage.value=null;
+          this.previewEditEntranceSrc=null;
+        }
+        if(type==="editExit"){
+          this.$refs.editExitImage.value=null;
+          this.previewEditExitSrc=null;
+        }
+        
+      },
+      
+      handleImage(e){
+        // let imagePre= imagePreview
+        const image = e.target.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(image);
+        return reader;
+      },
+      previewAddEntranceImage(e){
+        const reader= this.handleImage(e);
+        reader.onload = (e) => {
+          this.previewAddEntranceSrc = e.target.result;
+        };
+      },
+      previewAddExitImage(e){
+        const reader= this.handleImage(e);
+        reader.onload = (e) => {
+          this.previewAddExitSrc = e.target.result;
+        };
+      },
+      previewEditEntranceImage(e){
+        const reader= this.handleImage(e);
+        reader.onload = (e) => {
+          this.previewEditEntranceSrc = e.target.result;
+        };
+      },
+      previewEditExitImage(e){
+        const reader= this.handleImage(e);
+        reader.onload = (e) => {
+          this.previewEditExitSrc = e.target.result;
+        };
+      },
       openDialogEdit(index, row) {
         this.dialogEditForm = true;
-        this.dialogEditTitle = "Sửa thiết bị";
+        this.dialogEditTitle = "Sửa phương tiện";
         this.editType = "edit";
-        this.deviceEdit.id = row.id;
-        this.deviceEdit.name = row.name;
-        this.deviceEdit.address = row.address;
-        this.deviceEdit.type = row.type;
-        this.deviceEdit.positionId = row.positionId;
-        this.deviceEdit.status = row.status;
+        this.vehicleEdit.id = row.id;
+        this.vehicleEdit.licenseNumber = row.licenseNumber;
+        this.vehicleEdit.type = this.getVehicleTypeCode(row.type);
+        this.vehicleEdit.entranceTime = row.entranceTime;
+        this.vehicleEdit.exitTime = row.exitTime;
+        this.previewEditEntranceSrc=row.entranceImage;
+        this.previewEditExitSrc=row.exitImage;
       },
-      openDialogClone(index, row) {
-        this.dialogEditForm = true;
-        this.dialogEditTitle = "Sao chép thiết bị";
-        this.editType = "copy";
-        this.deviceEdit.name = row.name;
-        this.deviceEdit.address = row.address;
-        this.deviceEdit.type = row.type;
-        this.deviceEdit.positionId = row.positionId;
-        this.deviceEdit.status = row.status;
-      },
-      openDialogDetail(index, row){
+      openDialogDetail(index, row) {
 
       },
-      editDevice() {
-        this.deviceEdit.status = this.getDeviceStatusCode(this.deviceEdit.status);
-        this.deviceEdit.type = this.getDeviceTypeCode(this.deviceEdit.type);
-        this.deviceEdit.createdDate = null;
-        this.deviceEdit.modifiedDate = null;
-        if (this.editType === "edit") {
-          this.updateDeviceService(this.deviceEdit).then(data => {
-            this.dialogEditForm = false
-            this.reload();
-          });
-        } else if (this.editType === "copy") {
-          this.deviceEdit.id = null;
-          this.addVehicleService(this.deviceEdit).then(data => {
-            this.dialogEditForm = false
-            this.reload();
-          })
-        }
-
-      },
+      
       openDeleteDialog(index, row) {
         this.dialogDeleteVisible = true
-        this.deviceDelete = row
+        this.vehicleDelete = row
       },
-      deleteDevice() {
-        this.deleteDeviceService(this.deviceDelete.id).then(data => {
+      deleteVehicle() {
+        this.deleteVehicleService(this.vehicleDelete.id).then(data => {
           this.dialogDeleteVisible = false;
           this.reload();
         })
       },
+      editVehicle() {
+        let vehicle = {};
+        vehicle.licenseNumber = this.vehicleEdit.licenseNumber;
+        vehicle.type = this.vehicleEdit.type;
+        vehicle.entranceTime = this.vehicleEdit.entranceTime==null ? null: new Date(this.vehicleEdit.entranceTime);
+        vehicle.exitTime = this.vehicleEdit.exitTime==null ? null: new Date(this.vehicleEdit.exitTime);
+        let fd = new FormData();
+        fd.append("id", this.vehicleEdit.id);
+        fd.append("vehicle", JSON.stringify(vehicle))
+        if(this.$refs.editEntranceImage.files.length>0){
+          fd.append("entranceImage", this.$refs.editEntranceImage.files[0]);
+        }
+        if(this.$refs.editExitImage.files.length>0){
+          fd.append("exitImage",this.$refs.editExitImage.files[0]);
+        }
+        this.editVehicleService(fd).then(data=>{
+          console.log(data);
+          this.dialogEditForm=false;
+          this.reload();
+        })
+
+      },
       addVehicle() {
-        this.vehicleAdd.status = 0;
-        this.addVehicleService(this.vehicleAdd).then(data => {
-          this.dialogAddVehicle = false;
+        let vehicle = {};
+        vehicle.licenseNumber = this.vehicleAdd.licenseNumber;
+        vehicle.type = this.vehicleAdd.type;
+        vehicle.entranceTime = this.vehicleAdd.entranceTime;
+        vehicle.exitTime = this.vehicleAdd.exitTime
+        let fd = new FormData();
+        fd.append("vehicle", JSON.stringify(vehicle))
+        if(this.$refs.addEntranceImage.files.length>0){
+          fd.append("entranceImage", this.$refs.addEntranceImage.files[0]);
+        }
+        if(this.$refs.addExitImage.files.length>0){
+          fd.append("exitImage",this.$refs.addExitImage.files[0]);
+        }
+        this.addVehicleService(fd).then(data=>{
+          console.log(data);
+          this.dialogAddVehicle=false;
           this.reload();
         })
       },
       searchData() {
         console.log(this.vehicleSearch);
-        this.searchDeviesService(JSON.stringify(this.vehicleSearch)).then(data => {
+        let fd = new FormData();
+        let vehicle = {};
+        vehicle.licenseNumber = this.vehicleSearch.licenseNumber;
+        vehicle.type = this.vehicleSearch.type;
+        fd.append("vehicle", JSON.stringify(vehicle))
+        fd.append("fromEtrance", this.dateFormat(this.vehicleSearch.entranceTimeStart));
+        fd.append("toEntrance", this.dateFormat(this.vehicleSearch.entranceTimeEnd));
+        fd.append("fromExit", this.dateFormat(this.vehicleSearch.exitTimeStart));
+        fd.append("toExit", this.dateFormat(this.vehicleSearch.exitTimeEnd));
+        console.log(fd.get('fromEtrance'));
+        this.searchVehicleService(fd).then(data => {
           this.listVehicles = [];
           this.handleData(data);
         })
       },
       dateFormat(value) {
-        if (value) {
-          return moment(String(value)).format("DD/MM/yyyy");
+        if (value != null) {
+          return moment(String(value)).format("yyyy-MM-DD HH:mm:ss");
         } else {
-          return "";
+          return value;
+        }
+      },
+      dateFormatEdit(value){
+        if (value != null) {
+          return moment(String(value)).format("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        } else {
+          return value;
         }
       },
       getVehicleTypeLabel(type) {
@@ -328,33 +456,20 @@
           return "Xe máy";
         } else if (type == 2) {
           return "ô tô";
-        }
-      },
-      getDeviceTypeCode(type) {
-        if (type == "Cảm biến khoảng cách") {
-          return 1;
-        } else if (type == "Servo thanh chắn") {
-          return 2;
-        } else if (type == "Camera") {
-          return 3;
         } else
-          return type
+          return type;
       },
-      getDeviceStatusLabel(status) {
-        if (status == 1) {
-          return "Hoạt động";
-        } else if (status == 0) {
-          return "Không hoạt động";
-        }
-      },
-      getDeviceStatusCode(status) {
-        if (status === "Hoạt động")
+      getVehicleTypeCode(type) {
+        if (type == "Xe máy") {
           return 1;
-        else if (status === "Không hoạt động")
-          return 0;
-        else
-          return status;
+        } else if (type == "ô tô") {
+          return 2;
+        } else
+          return type;
       },
+
+
+
       reload() {
         this.listVehicles = [];
         this.getAllVehicleService().then(data => {
@@ -366,17 +481,18 @@
           element.entranceTime = this.dateFormat(element.entranceTime);
           element.exitTime = this.dateFormat(element.exitTime);
           element.type = this.getVehicleTypeLabel(element.type);
-          element.status = this.getDeviceStatusLabel(element.status);
+          element.entranceImage = "data:image/jpeg;base64," + element.entranceImage;
+          element.exitImage = "data:image/jpeg;base64," + element.exitImage;
           this.listVehicles.push(element);
         });
       },
       resetSearchInput() {
-        this.vehicleSearch.address = "";
-        this.vehicleSearch.id = "";
-        this.vehicleSearch.status = null;
-        this.vehicleSearch.positionId = "";
-        this.vehicleSearch.type = null
-        this.vehicleSearch.name = "";
+        this.vehicleSearch.licenseNumber = "";
+        this.vehicleSearch.type = null;
+        this.vehicleSearch.entranceTimeEnd = null;
+        this.vehicleSearch.entranceTimeStart = null;
+        this.vehicleSearch.exitTimeStart = null
+        this.vehicleSearch.exitTimeEnd = null;
       }
     },
     created() {

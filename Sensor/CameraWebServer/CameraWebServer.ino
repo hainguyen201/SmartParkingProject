@@ -1,8 +1,15 @@
 #include "esp_camera.h"
-#include <WiFi.h>
 #include <Arduino.h>
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
+#ifdef ESP32
+  #include <WiFi.h>
+  #include <AsyncTCP.h>
+#else
+  #include <ESP8266WiFi.h>
+  #include <ESPAsyncTCP.h>
+#endif
+#include <ESPAsyncWebServer.h>
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
 //            Ensure ESP32 Wrover Module or other board with PSRAM is selected
@@ -21,17 +28,53 @@
 
 #include "camera_pins.h"
 
+
 const char* ssid = "Wifi";
 const char* password = "12345687";
 String serverName = "192.168.1.5";
-String serverPath = "/uploadImage";
-const int serverPort = 8089;  
-const int timerInterval = 2000;    // time between each HTTP POST image
+String serverPath = "/entrances";
+int type=1;
+int gateId=20173089;
+int serverPort = 8089;  
+int timerInterval = 2000;    // time between each HTTP POST image
 unsigned long previousMillis = 0;   // last time image was sent
+
+//define webserver
+AsyncWebServer server(8080);
+const char* PARAM_INPUT_1 = "serverName";
+const char* PARAM_INPUT_2 = "serverPath";
+const char* PARAM_INPUT_3 = "serverPort";
+const char* PARAM_INPUT_4 = "timerInterval";
+// HTML web page to handle 3 input fields (serverName, serverPath, serverPort)
+const char index_html[] PROGMEM = R"rawliteral(
+<!DOCTYPE HTML><html><head>
+  <title>ESP Input Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head><body>
+  <form action="/get">
+    serverName: <input type="text" name="serverName">
+    <input type="submit" value="Submit">
+  </form><br>
+  <form action="/get">
+    serverPath: <input type="text" name="serverPath">
+    <input type="submit" value="Submit">
+  </form><br>
+  <form action="/get">
+    serverPort: <input type="number" name="serverPort">
+    <input type="submit" value="Submit">
+  </form>
+  <form action="/get">
+    timerInterval: <input type="text" name="timerInterval">
+    <input type="submit" value="Submit">
+  </form><br>
+</body></html>)rawliteral";
+
 WiFiClient client;
+void notFound(AsyncWebServerRequest *request) {
+  request->send(404, "text/plain", "Not found");
+}
 
 void startCameraServer();
-
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
@@ -112,7 +155,50 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
+  //setup webserver
+  // Send web page with input fields to client
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", index_html);
+  });
 
+  // Send a GET request to <ESP_IP>/get?serverName=<inputMessage>
+  server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    String inputMessage;
+    String inputParam;
+    // GET serverName value on <ESP_IP>/get?serverName=<inputMessage>
+    if (request->hasParam(PARAM_INPUT_1)) {
+      inputMessage = request->getParam(PARAM_INPUT_1)->value();
+      serverName=inputMessage;
+      inputParam = PARAM_INPUT_1;
+    }
+    // GET serverPath value on <ESP_IP>/get?serverPath=<inputMessage>
+    else if (request->hasParam(PARAM_INPUT_2)) {
+      inputMessage = request->getParam(PARAM_INPUT_2)->value();
+      serverPath=inputMessage;
+      inputParam = PARAM_INPUT_2;
+    }
+    // GET serverPort value on <ESP_IP>/get?serverPort=<inputMessage>
+    else if (request->hasParam(PARAM_INPUT_3)) {
+      inputMessage = request->getParam(PARAM_INPUT_3)->value();
+      serverPort= inputMessage.toInt();
+      inputParam = PARAM_INPUT_3;
+    }
+    else if (request->hasParam(PARAM_INPUT_4)) {
+      inputMessage = request->getParam(PARAM_INPUT_4)->value();
+      timerInterval=inputMessage.toInt();
+      inputParam = PARAM_INPUT_4;
+    }
+    else {
+      inputMessage = "No message sent";
+      inputParam = "none";
+    }
+    Serial.println(inputMessage);
+    request->send(200, "text/html", "HTTP GET request sent to your ESP on input field (" 
+                                     + inputParam + ") with value: " + inputMessage +
+                                     "<br><a href=\"/\">Return to Home Page</a>");
+  });
+  server.onNotFound(notFound);
+  server.begin();
   sendPhoto(); 
 }
 String sendPhoto() {
@@ -131,17 +217,17 @@ String sendPhoto() {
 
   if (client.connect(serverName.c_str(), serverPort)) {
     Serial.println("Connection successful!");    
-    String head = "--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
-    String tail = "\r\n--RandomNerdTutorials--\r\n";
+    String head = "--HUST\r\nContent-Disposition: form-data; name=\"entranceImage\"; filename=\"entrace.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
+    String tail = "\r\n--HUST--\r\n";
 
     uint32_t imageLen = fb->len;
     uint32_t extraLen = head.length() + tail.length();
     uint32_t totalLen = imageLen + extraLen;
   
-    client.println("POST " + serverPath + " HTTP/1.1");
+    client.println("POST " + serverPath+"?type="+String(type)+"&gateId="+ String(gateId)+ " HTTP/1.1");
     client.println("Host: " + serverName);
     client.println("Content-Length: " + String(totalLen));
-    client.println("Content-Type: multipart/form-data; boundary=RandomNerdTutorials");
+    client.println("Content-Type: multipart/form-data; boundary=HUST");
     client.println();
     client.print(head);
   

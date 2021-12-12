@@ -2,8 +2,17 @@ import json
 
 import requests
 import base64
+import datetime
 
 baseUrl = "http://localhost:8089/vehicles"
+
+
+class Vehicle:
+    def __init__(self, vehicle_type, license_number, entrance_time, exit_time):
+        self.type = vehicle_type
+        self.licenseNumber = license_number
+        self.entranceTime = entrance_time
+        self.exitTime = exit_time
 
 
 def updateData(files, url):
@@ -20,10 +29,12 @@ def postData(data, url):
     return response.json()
 
 
-vehicle = {
-    "type": 1,
-    "licenseNumber": "24234142",
-}
-file = {'entrance_image': base64.encodebytes(open(r'./vehicle_images/license.jpg', 'rb').read())}
-responses = requests.post(url=baseUrl, data=vehicle, files=file)
-print(responses.text)
+def addNewVehicle(vehicle_type, license_number, entrance_image):
+    time_now = datetime.datetime.now()
+    vehicle = Vehicle(vehicle_type=vehicle_type, license_number=license_number, entrance_time=time_now)
+    file = {
+        'entranceImage': entrance_image,
+        'vehicle': (None, json.dumps(vehicle))
+    }
+    response = requests.post(url=baseUrl, files=file)
+    print(response.text)

@@ -1,326 +1,443 @@
-#define TRIG_PIN D1
-#define ECHO_PIN D2
-#define TIME_OUT 5000
+<body>
+        <section class="main">
+            <div id="logo">
+                <label for="nav-toggle-cb" id="nav-toggle">☰&nbsp;&nbsp;Toggle OV2640 settings</label>
+            </div>
+            <div id="content">
+                <div id="sidebar">
+                    <input type="checkbox" id="nav-toggle-cb" checked="checked">
+                    <nav id="menu">
+                        <div class="input-group" id="framesize-group">
+                            <label for="framesize">Resolution</label>
+                            <select id="framesize" class="default-action">
+                                <option value="10">UXGA(1600x1200)</option>
+                                <option value="9">SXGA(1280x1024)</option>
+                                <option value="8">XGA(1024x768)</option>
+                                <option value="7">SVGA(800x600)</option>
+                                <option value="6">VGA(640x480)</option>
+                                <option value="5" selected="selected">CIF(400x296)</option>
+                                <option value="4">QVGA(320x240)</option>
+                                <option value="3">HQVGA(240x176)</option>
+                                <option value="0">QQVGA(160x120)</option>
+                            </select>
+                        </div>
+                        <div class="input-group" id="quality-group">
+                            <label for="quality">Quality</label>
+                            <div class="range-min">10</div>
+                            <input type="range" id="quality" min="10" max="63" value="10" class="default-action">
+                            <div class="range-max">63</div>
+                        </div>
+                        <div class="input-group" id="brightness-group">
+                            <label for="brightness">Brightness</label>
+                            <div class="range-min">-2</div>
+                            <input type="range" id="brightness" min="-2" max="2" value="0" class="default-action">
+                            <div class="range-max">2</div>
+                        </div>
+                        <div class="input-group" id="contrast-group">
+                            <label for="contrast">Contrast</label>
+                            <div class="range-min">-2</div>
+                            <input type="range" id="contrast" min="-2" max="2" value="0" class="default-action">
+                            <div class="range-max">2</div>
+                        </div>
+                        <div class="input-group" id="saturation-group">
+                            <label for="saturation">Saturation</label>
+                            <div class="range-min">-2</div>
+                            <input type="range" id="saturation" min="-2" max="2" value="0" class="default-action">
+                            <div class="range-max">2</div>
+                        </div>
+                        <div class="input-group" id="special_effect-group">
+                            <label for="special_effect">Special Effect</label>
+                            <select id="special_effect" class="default-action">
+                                <option value="0" selected="selected">No Effect</option>
+                                <option value="1">Negative</option>
+                                <option value="2">Grayscale</option>
+                                <option value="3">Red Tint</option>
+                                <option value="4">Green Tint</option>
+                                <option value="5">Blue Tint</option>
+                                <option value="6">Sepia</option>
+                            </select>
+                        </div>
+                        <div class="input-group" id="awb-group">
+                            <label for="awb">AWB</label>
+                            <div class="switch">
+                                <input id="awb" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="awb"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="awb_gain-group">
+                            <label for="awb_gain">AWB Gain</label>
+                            <div class="switch">
+                                <input id="awb_gain" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="awb_gain"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="wb_mode-group">
+                            <label for="wb_mode">WB Mode</label>
+                            <select id="wb_mode" class="default-action">
+                                <option value="0" selected="selected">Auto</option>
+                                <option value="1">Sunny</option>
+                                <option value="2">Cloudy</option>
+                                <option value="3">Office</option>
+                                <option value="4">Home</option>
+                            </select>
+                        </div>
+                        <div class="input-group" id="aec-group">
+                            <label for="aec">AEC SENSOR</label>
+                            <div class="switch">
+                                <input id="aec" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="aec"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="aec2-group">
+                            <label for="aec2">AEC DSP</label>
+                            <div class="switch">
+                                <input id="aec2" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="aec2"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="ae_level-group">
+                            <label for="ae_level">AE Level</label>
+                            <div class="range-min">-2</div>
+                            <input type="range" id="ae_level" min="-2" max="2" value="0" class="default-action">
+                            <div class="range-max">2</div>
+                        </div>
+                        <div class="input-group hidden" id="aec_value-group">
+                            <label for="aec_value">Exposure</label>
+                            <div class="range-min">0</div>
+                            <input type="range" id="aec_value" min="0" max="1200" value="204" class="default-action">
+                            <div class="range-max">1200</div>
+                        </div>
+                        <div class="input-group" id="agc-group">
+                            <label for="agc">AGC</label>
+                            <div class="switch">
+                                <input id="agc" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="agc"></label>
+                            </div>
+                        </div>
+                        <div class="input-group hidden" id="agc_gain-group">
+                            <label for="agc_gain">Gain</label>
+                            <div class="range-min">1x</div>
+                            <input type="range" id="agc_gain" min="0" max="30" value="5" class="default-action">
+                            <div class="range-max">31x</div>
+                        </div>
+                        <div class="input-group" id="gainceiling-group">
+                            <label for="gainceiling">Gain Ceiling</label>
+                            <div class="range-min">2x</div>
+                            <input type="range" id="gainceiling" min="0" max="6" value="0" class="default-action">
+                            <div class="range-max">128x</div>
+                        </div>
+                        <div class="input-group" id="bpc-group">
+                            <label for="bpc">BPC</label>
+                            <div class="switch">
+                                <input id="bpc" type="checkbox" class="default-action">
+                                <label class="slider" for="bpc"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="wpc-group">
+                            <label for="wpc">WPC</label>
+                            <div class="switch">
+                                <input id="wpc" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="wpc"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="raw_gma-group">
+                            <label for="raw_gma">Raw GMA</label>
+                            <div class="switch">
+                                <input id="raw_gma" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="raw_gma"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="lenc-group">
+                            <label for="lenc">Lens Correction</label>
+                            <div class="switch">
+                                <input id="lenc" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="lenc"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="hmirror-group">
+                            <label for="hmirror">H-Mirror</label>
+                            <div class="switch">
+                                <input id="hmirror" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="hmirror"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="vflip-group">
+                            <label for="vflip">V-Flip</label>
+                            <div class="switch">
+                                <input id="vflip" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="vflip"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="dcw-group">
+                            <label for="dcw">DCW (Downsize EN)</label>
+                            <div class="switch">
+                                <input id="dcw" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="dcw"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="colorbar-group">
+                            <label for="colorbar">Color Bar</label>
+                            <div class="switch">
+                                <input id="colorbar" type="checkbox" class="default-action">
+                                <label class="slider" for="colorbar"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="face_detect-group">
+                            <label for="face_detect">Face Detection</label>
+                            <div class="switch">
+                                <input id="face_detect" type="checkbox" class="default-action">
+                                <label class="slider" for="face_detect"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="face_recognize-group">
+                            <label for="face_recognize">Face Recognition</label>
+                            <div class="switch">
+                                <input id="face_recognize" type="checkbox" class="default-action">
+                                <label class="slider" for="face_recognize"></label>
+                            </div>
+                        </div>
+                        <section id="buttons">
+                            <button id="get-still">Get Still</button>
+                            <button id="toggle-stream">Start Stream</button>
+                            <button id="face_enroll" class="disabled" disabled="">Enroll Face</button>
+                        </section>
+                    </nav>
+                </div>
+                <figure>
+                    <div id="stream-container" class="image-container hidden">
+                        <div class="close" id="close-stream">×</div>
+                        <img id="stream" src="http://192.168.1.3:81/stream">
+                    </div>
+                </figure>
+            </div>
+        </section>
+        <script>
+document.addEventListener('DOMContentLoaded', function (event) {
+  var baseHost = document.location.origin
+  var streamUrl = baseHost + ':81'
 
-
-// Thông tin về MQTT Broker
-#define mqtt_server "broker.mqttdashboard.com"
-#define mqtt_topic_pub "channel/topic1"
-#define mqtt_topic_sub "channel/topic1"
-#define wifiID "A-11"
-#include <ESP8266WiFi.h>
-#include <PubSubClient.h>
-#include <ArduinoJson.h>
-#include <ESP8266HTTPClient.h>
-#include <ESP8266WebServer.h>
-#include <EEPROM.h>
-const uint16_t mqtt_port = 1883;
-// const char* ssid = "EXT";
-// const char* password = "12345689";
-long lastMsg = 0;
-char msg[50];
-int value = 0;
-
-//Variables
-int i = 0;
-int statusCode;
-const char* ssid = "Default_SSID";
-const char* passphrase = "Default_Password";
-String st;
-String content;
-
-WiFiClient espClient;
-PubSubClient client(espClient);
-ESP8266WebServer server(80);
-bool testWifi(void);
-void launchWeb(void);
-void setupAP(void);
-
-float GetDistance()
-{
-  float duration, distanceCm;
-
-  digitalWrite(TRIG_PIN, LOW);
-  delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
-
-  duration = pulseIn(ECHO_PIN, HIGH, TIME_OUT);
-
-  // convert to distance
-  distanceCm = duration / 29.1 / 2;
-
-  return distanceCm;
-}
-// void setup_wifi() {
-//   delay(10);
-//   Serial.println();
-//   Serial.print("Connecting to ");
-//   Serial.println(ssid);
-//   WiFi.begin(ssid, password);
-//   while (WiFi.status() != WL_CONNECTED) {
-//     delay(500);
-//     Serial.print(".");
-//   }
-//   Serial.println("");
-//   Serial.println("WiFi connected");
-//   Serial.println("IP address: ");
-//   Serial.println(WiFi.localIP());
-// }
-void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
+  const hide = el => {
+    el.classList.add('hidden')
   }
-  Serial.println();
-}
-void reconnect() {
-  // Chờ tới khi kết nối
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Thực hiện kết nối với mqtt user và pass
-    if (client.connect("esp8266")) {
-      Serial.println("connected");
-      // Khi kết nối sẽ publish thông báo
-      //client.publish(mqtt_topic_pub, "ESP_reconnected");
-      // ... và nhận lại thông tin này
-      //client.subscribe(mqtt_topic_sub);
+  const show = el => {
+    el.classList.remove('hidden')
+  }
+
+  const disable = el => {
+    el.classList.add('disabled')
+    el.disabled = true
+  }
+
+  const enable = el => {
+    el.classList.remove('disabled')
+    el.disabled = false
+  }
+
+  const updateValue = (el, value, updateRemote) => {
+    updateRemote = updateRemote == null ? true : updateRemote
+    let initialValue
+    if (el.type === 'checkbox') {
+      initialValue = el.checked
+      value = !!value
+      el.checked = value
     } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Đợi 5s
-      delay(5000);
+      initialValue = el.value
+      el.value = value
     }
-  }
-}
-void setup() {
 
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-  //  pinMode (LED, OUTPUT);
-  Serial.begin(115200);
-  // setup_wifi();
-  client.setServer(mqtt_server, mqtt_port);
-  client.setCallback(callback);
-
-  Serial.println("Disconnecting current wifi connection");
-  WiFi.disconnect();
-  EEPROM.begin(512); //Initialasing EEPROM
-  delay(10);
-  pinMode(LED_BUILTIN, OUTPUT);
-  Serial.println();
-  Serial.println();
-  Serial.println("Startup");
-  //---------------------------------------- Read eeprom for ssid and pass
-  Serial.println("Reading EEPROM ssid");
-  String esid;
-  for (int i = 0; i < 32; ++i)
-  {
-    esid += char(EEPROM.read(i));
-  }
-  Serial.println();
-  Serial.print("SSID: ");
-  Serial.println(esid);
-  Serial.println("Reading EEPROM pass");
-  String epass = "";
-  for (int i = 32; i < 96; ++i)
-  {
-    epass += char(EEPROM.read(i));
-  }
-  Serial.print("PASS: ");
-  Serial.println(epass);
-  WiFi.begin(esid.c_str(), epass.c_str());
-  if (testWifi())
-  {
-    Serial.println("Succesfully Connected!!!");
-    return;
-  }
-  else
-  {
-    Serial.println("Turning the HotSpot On");
-    launchWeb();
-    setupAP();// Setup HotSpot
-  }
-  Serial.println();
-  Serial.println("Waiting.");
-  while ((WiFi.status() != WL_CONNECTED))
-  {
-    Serial.print(".");
-    delay(100);
-    server.handleClient();
-  }
-
-
-
-
-}
-void loop() {
-  // Kiểm tra kết nối
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop();
-  long distance = GetDistance();
-  //  if (distance > 0)
-  //    snprintf (msg, 75, "distance: %ld", distance);
-  //  else
-  //
-  //    snprintf (msg, 75, "echo time out!");
-  StaticJsonBuffer<300> JSONbuffer;
-  JsonObject& JSONencoder = JSONbuffer.createObject();
-  JSONencoder["id"] = "A11";
-  JSONencoder["value_below"] = random(2);
-  JSONencoder["value_after"] = distance;
-  //JSONencoder["HUM"] = h;
-  char JSONmessageBuffer[100];
-  JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-
-  Serial.print("Publish message: ");
-  Serial.println(JSONmessageBuffer);
-  client.publish(mqtt_topic_pub, JSONmessageBuffer);
-  delay(100);
-
-}
-bool testWifi(void)
-{
-  int c = 0;
-  Serial.println("Waiting for Wifi to connect");
-  while ( c < 20 ) {
-    if (WiFi.status() == WL_CONNECTED)
-    {
-      return true;
-    }
-    delay(500);
-    Serial.print("*");
-    c++;
-  }
-  Serial.println("");
-  Serial.println("Connect timed out, opening AP");
-  return false;
-}
-void launchWeb()
-{
-  Serial.println("");
-  if (WiFi.status() == WL_CONNECTED)
-    Serial.println("WiFi connected");
-  Serial.print("Local IP: ");
-  Serial.println(WiFi.localIP());
-  Serial.print("SoftAP IP: ");
-  Serial.println(WiFi.softAPIP());
-  createWebServer();
-  // Start the server
-  server.begin();
-  Serial.println("Server started");
-}
-void setupAP(void)
-{
-  WiFi.mode(WIFI_STA);
-  WiFi.disconnect();
-  delay(100);
-  int n = WiFi.scanNetworks();
-  Serial.println("scan done");
-  if (n == 0)
-    Serial.println("no networks found");
-  else
-  {
-    Serial.print(n);
-    Serial.println(" networks found");
-    for (int i = 0; i < n; ++i)
-    {
-      // Print SSID and RSSI for each network found
-      Serial.print(i + 1);
-      Serial.print(": ");
-      Serial.print(WiFi.SSID(i));
-      Serial.print(" (");
-      Serial.print(WiFi.RSSI(i));
-      Serial.print(")");
-      Serial.println((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "*");
-      delay(10);
-    }
-  }
-  Serial.println("");
-  st = "<ol>";
-  for (int i = 0; i < n; ++i)
-  {
-    // Print SSID and RSSI for each network found
-    st += "<li>";
-    st += WiFi.SSID(i);
-    st += " (";
-    st += WiFi.RSSI(i);
-    st += ")";
-    st += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "*";
-    st += "</li>";
-  }
-  st += "</ol>";
-  delay(100);
-  WiFi.softAP(wifiID, "");
-  Serial.println("Initializing_softap_for_wifi credentials_modification");
-  launchWeb();
-  Serial.println("over");
-}
-void createWebServer()
-{
-  {
-    server.on("/", []() {
-      IPAddress ip = WiFi.softAPIP();
-      String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
-      content = "<!DOCTYPE HTML>\r\n<html>Welcome to Wifi Credentials Update page";
-      content += "<form action=\"/scan\" method=\"POST\"><input type=\"submit\" value=\"scan\"></form>";
-      content += ipStr;
-      content += "<p>";
-      content += st;
-      content += "</p><form method='get' action='setting'><label>SSID: </label><input name='ssid' length=32><input name='pass' length=64><input type='submit'></form>";
-      content += "</html>";
-      server.send(200, "text/html", content);
-    });
-    server.on("/scan", []() {
-      //setupAP();
-      IPAddress ip = WiFi.softAPIP();
-      String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
-      content = "<!DOCTYPE HTML>\r\n<html>go back";
-      server.send(200, "text/html", content);
-    });
-    server.on("/setting", []() {
-      String qsid = server.arg("ssid");
-      String qpass = server.arg("pass");
-      if (qsid.length() > 0 && qpass.length() > 0) {
-        Serial.println("clearing eeprom");
-        for (int i = 0; i < 96; ++i) {
-          EEPROM.write(i, 0);
+    if (updateRemote && initialValue !== value) {
+      updateConfig(el);
+    } else if(!updateRemote){
+      if(el.id === "aec"){
+        value ? hide(exposure) : show(exposure)
+      } else if(el.id === "agc"){
+        if (value) {
+          show(gainCeiling)
+          hide(agcGain)
+        } else {
+          hide(gainCeiling)
+          show(agcGain)
         }
-        Serial.println(qsid);
-        Serial.println("");
-        Serial.println(qpass);
-        Serial.println("");
-        Serial.println("writing eeprom ssid:");
-        for (int i = 0; i < qsid.length(); ++i)
-        {
-          EEPROM.write(i, qsid[i]);
-          Serial.print("Wrote: ");
-          Serial.println(qsid[i]);
-        }
-        Serial.println("writing eeprom pass:");
-        for (int i = 0; i < qpass.length(); ++i)
-        {
-          EEPROM.write(32 + i, qpass[i]);
-          Serial.print("Wrote: ");
-          Serial.println(qpass[i]);
-        }
-        EEPROM.commit();
-        content = "{\"Success\":\"saved to eeprom... reset to boot into new wifi\"}";
-        statusCode = 200;
-        ESP.reset();
-      } else {
-        content = "{\"Error\":\"404 not found\"}";
-        statusCode = 404;
-        Serial.println("Sending 404");
+      } else if(el.id === "awb_gain"){
+        value ? show(wb) : hide(wb)
+      } else if(el.id === "face_recognize"){
+        value ? enable(enrollButton) : disable(enrollButton)
       }
-      server.sendHeader("Access-Control-Allow-Origin", "*");
-      server.send(statusCode, "application/json", content);
-    });
+    }
   }
-}
+
+  function updateConfig (el) {
+    let value
+    switch (el.type) {
+      case 'checkbox':
+        value = el.checked ? 1 : 0
+        break
+      case 'range':
+      case 'select-one':
+        value = el.value
+        break
+      case 'button':
+      case 'submit':
+        value = '1'
+        break
+      default:
+        return
+    }
+
+    const query = `${baseHost}/control?var=${el.id}&val=${value}`
+
+    fetch(query)
+      .then(response => {
+        console.log(`request to ${query} finished, status: ${response.status}`)
+      })
+  }
+
+  document
+    .querySelectorAll('.close')
+    .forEach(el => {
+      el.onclick = () => {
+        hide(el.parentNode)
+      }
+    })
+
+  // read initial values
+  fetch(`${baseHost}/status`)
+    .then(function (response) {
+      return response.json()
+    })
+    .then(function (state) {
+      document
+        .querySelectorAll('.default-action')
+        .forEach(el => {
+          updateValue(el, state[el.id], false)
+        })
+    })
+
+  const view = document.getElementById('stream')
+  const viewContainer = document.getElementById('stream-container')
+  const stillButton = document.getElementById('get-still')
+  const streamButton = document.getElementById('toggle-stream')
+  const enrollButton = document.getElementById('face_enroll')
+  const closeButton = document.getElementById('close-stream')
+
+  const stopStream = () => {
+    window.stop();
+    streamButton.innerHTML = 'Start Stream'
+  }
+
+  const startStream = () => {
+    view.src = `${streamUrl}/stream`
+    show(viewContainer)
+    streamButton.innerHTML = 'Stop Stream'
+  }
+
+  // Attach actions to buttons
+  stillButton.onclick = () => {
+    stopStream()
+    view.src = `${baseHost}/capture?_cb=${Date.now()}`
+    show(viewContainer)
+  }
+
+  closeButton.onclick = () => {
+    stopStream()
+    hide(viewContainer)
+  }
+
+  streamButton.onclick = () => {
+    const streamEnabled = streamButton.innerHTML === 'Stop Stream'
+    if (streamEnabled) {
+      stopStream()
+    } else {
+      startStream()
+    }
+  }
+
+  enrollButton.onclick = () => {
+    updateConfig(enrollButton)
+  }
+
+  // Attach default on change action
+  document
+    .querySelectorAll('.default-action')
+    .forEach(el => {
+      el.onchange = () => updateConfig(el)
+    })
+
+  // Custom actions
+  // Gain
+  const agc = document.getElementById('agc')
+  const agcGain = document.getElementById('agc_gain-group')
+  const gainCeiling = document.getElementById('gainceiling-group')
+  agc.onchange = () => {
+    updateConfig(agc)
+    if (agc.checked) {
+      show(gainCeiling)
+      hide(agcGain)
+    } else {
+      hide(gainCeiling)
+      show(agcGain)
+    }
+  }
+
+  // Exposure
+  const aec = document.getElementById('aec')
+  const exposure = document.getElementById('aec_value-group')
+  aec.onchange = () => {
+    updateConfig(aec)
+    aec.checked ? hide(exposure) : show(exposure)
+  }
+
+  // AWB
+  const awb = document.getElementById('awb_gain')
+  const wb = document.getElementById('wb_mode-group')
+  awb.onchange = () => {
+    updateConfig(awb)
+    awb.checked ? show(wb) : hide(wb)
+  }
+
+  // Detection and framesize
+  const detect = document.getElementById('face_detect')
+  const recognize = document.getElementById('face_recognize')
+  const framesize = document.getElementById('framesize')
+
+  framesize.onchange = () => {
+    updateConfig(framesize)
+    if (framesize.value > 5) {
+      updateValue(detect, false)
+      updateValue(recognize, false)
+    }
+  }
+
+  detect.onchange = () => {
+    if (framesize.value > 5) {
+      alert("Please select CIF or lower resolution before enabling this feature!");
+      updateValue(detect, false)
+      return;
+    }
+    updateConfig(detect)
+    if (!detect.checked) {
+      disable(enrollButton)
+      updateValue(recognize, false)
+    }
+  }
+
+  recognize.onchange = () => {
+    if (framesize.value > 5) {
+      alert("Please select CIF or lower resolution before enabling this feature!");
+      updateValue(recognize, false)
+      return;
+    }
+    updateConfig(recognize)
+    if (recognize.checked) {
+      enable(enrollButton)
+      updateValue(detect, true)
+    } else {
+      disable(enrollButton)
+    }
+  }
+})
+
+        </script>
+    
+
+</body>

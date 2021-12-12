@@ -6,7 +6,7 @@ const state = {
 const getters = {
 };
 const actions = {
-    async getAllUser({commit}){
+    async getAllUserService({commit}){
         const response= await axios.get(BaseModel.baseUrlUser);
         return response.data;
     },

@@ -1,14 +1,17 @@
 <template>
   <div class="entrance">
     <el-row class="selectcamera">
-      <el-select v-model="value" placeholder="Select" filterable @change="updateCamera($event)">
+      <el-col :span="3"><span style="line-height: 40px">Chọn camera:</span></el-col>
+      <el-col :span="8">
+        <el-select v-model="value" placeholder="Select" filterable @change="updateCamera($event)">
         <el-option v-for="(item, index) in cameraIP" :key="index" :label="item.name" :value="item.address">
         </el-option>
       </el-select>
+      </el-col>
     </el-row>
     <el-row class="view">
       <el-col>
-        <img :src="value" ref="cameraVideo" />
+        <img :src="value" ref="cameraVideo"  style="height:400px"/>
       </el-col>
       <!-- <img src="http:/192.168.1.3:4747/" alt=""> -->
     </el-row>
@@ -30,7 +33,7 @@
     name: "Entrance",
     data() {
       return {
-        value: "",
+        value: "http://192.168.1.4:81/stream",
         cameraIP: [{
             name: "camera droid",
             address: "http://192.168.1.2:4747/video2",
@@ -44,7 +47,7 @@
     },
 
     methods: {
-      ...mapActions(["captureImageService"]),
+      ...mapActions(["captureImageService", 'getAllDeviceService']),
       updateCamera(e) {
         console.log(e);
       },
@@ -68,8 +71,20 @@
       },
     },
     mounted: function () {
-      this.captureImage();
+      // this.captureImage();
     },
+    created(){
+      this.cameraIP=[];
+      this.getAllDeviceService().then(data=>{
+        data.forEach(element => {
+          if(element.type===3){
+            this.cameraIP.push(element)
+          }
+        });
+        console.log(this.cameraIP);
+      })
+      
+    }
   };
 
 </script>

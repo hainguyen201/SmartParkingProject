@@ -6,8 +6,9 @@
 // Thông tin về MQTT Broker
 #define mqtt_server "broker.mqttdashboard.com"
 #define mqtt_topic_pub "channel/topic1"
-#define mqtt_topic_sub "channel/topic1"
+#define mqtt_topic_sub "channel/gate1_in"
 #define wifiID "A-11"
+#include <Servo.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
@@ -29,6 +30,8 @@ const char* passphrase = "Default_Password";
 String st;
 String content;
 
+Servo gateServo; 
+int pos = 0;
 WiFiClient espClient;
 PubSubClient client(espClient);
 ESP8266WebServer server(80);
@@ -53,29 +56,40 @@ float GetDistance()
 
   return distanceCm;
 }
-// void setup_wifi() {
-//   delay(10);
-//   Serial.println();
-//   Serial.print("Connecting to ");
-//   Serial.println(ssid);
-//   WiFi.begin(ssid, password);
-//   while (WiFi.status() != WL_CONNECTED) {
-//     delay(500);
-//     Serial.print(".");
-//   }
-//   Serial.println("");
-//   Serial.println("WiFi connected");
-//   Serial.println("IP address: ");
-//   Serial.println(WiFi.localIP());
-// }
+void openGate(){
+  for(pos=179; pos>=1; pos-=1){
+    gateServo.write(pos);
+    delay(5);
+  }
+}
+void closeGate(){
+  for(; pos<180; pos+=1){
+    gateServo.write(pos);
+    delay(5);
+  }
+}
+
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
   for (int i = 0; i < length; i++) {
+//    data[i]=(char)payload[i];
     Serial.print((char)payload[i]);
   }
   Serial.println();
+//  String data=String((char *)payload);
+  if(!strncmp((char *)payload, "open", length)){
+    Serial.println("open ok");
+    openGate();
+  }
+  if(!strncmp((char *)payload, "close", length)){
+    Serial.println("close ok");
+    closeGate();
+  }
+  
+  
+//  Serial.println("This is new data: "+data);
 }
 void reconnect() {
   // Chờ tới khi kết nối
@@ -87,7 +101,7 @@ void reconnect() {
       // Khi kết nối sẽ publish thông báo
       //client.publish(mqtt_topic_pub, "ESP_reconnected");
       // ... và nhận lại thông tin này
-      //client.subscribe(mqtt_topic_sub);
+      client.subscribe(mqtt_topic_sub);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -98,7 +112,7 @@ void reconnect() {
   }
 }
 void setup() {
-
+  gateServo.attach(D8);
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
 //  pinMode (LED, OUTPUT);
@@ -153,6 +167,7 @@ void setup() {
     delay(100);
     server.handleClient();
   }
+  
 
   
 
@@ -179,8 +194,8 @@ void loop() {
   char JSONmessageBuffer[100];
   JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
       
-  Serial.print("Publish message: ");
-  Serial.println(JSONmessageBuffer);
+//  Serial.print("Publish message: ");
+//  Serial.println(JSONmessageBuffer);
   client.publish(mqtt_topic_pub, JSONmessageBuffer);
   delay(100);
 

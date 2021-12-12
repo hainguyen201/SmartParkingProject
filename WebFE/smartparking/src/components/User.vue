@@ -15,12 +15,14 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["addUserService"]),
+    ...mapActions(["addUserService", "getAllUserService"]),
     previewImage(e) {
       console.log("");
     },
     getAllUser() {
-      console.log("");
+      this.getAllUserService().then(data=>{
+        console.log(data);
+      })
     },
     addUser() {
       let image = this.$refs.avatarImage.files[0];
@@ -30,11 +32,14 @@ export default {
         reader.readAsDataURL(image);
         reader.onload = (e) => {
           this.avatar = e.target.result.split(",")[1];
-          console.log(this.avatar);
           let user = {
             name: "hainvis",
           };
-          this.addUserService(user);
+          console.log('adduser')
+          fd.append('user', JSON.stringify(user));
+          fd.append('avatar', image)
+          debugger
+          this.addUserService(fd);
         };
       }
     },

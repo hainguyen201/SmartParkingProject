@@ -12,7 +12,7 @@ from character_classification import get_character
 from character_detection import char_detection
 import os, shutil
 import time
-
+from sql_connect import addNewVehicle
 
 
 def clear_folder():
@@ -53,10 +53,17 @@ def get_license_code():
 
 @app.route('/vehicle_images', methods=['POST'])
 def video_feed():
-    json_request=request.get_json()
-    camera_ip=json_request['camera_ip']
+    json_request = request.get_json()
+    camera_ip = json_request['camera_ip']
     cv2.imwrite('vehicle_images/license.jpg', gen_image(camera_ip))
     return 'ok'
+
+@app.route('/entrances', methods=['POST'])
+def vehicleEntrance():
+    entrance_image= request.form['imageFile']
+    print(type(entrance_image))
+
+
 def gen_image(camera_ip):
     camera = cv2.VideoCapture(camera_ip)
     time.sleep(3)
@@ -65,4 +72,5 @@ def gen_image(camera_ip):
         return gen_image(camera_ip)
     else:
         return frame
+
 app.run(host='localhost', port=8787)
