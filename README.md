@@ -10,10 +10,10 @@ npm start
 build project to jar file (smartparking.jar)
 java -jar smartparking.ja
 ```
-##Model API
+## Model API
 ```
 python main.py
 ```
-##Sensor
+## Sensor
 - file code esp32: CameraWebServer/CameraWebServer.ino
 - file code esp8266: sonic_sensor/sonic_sensor.ino
