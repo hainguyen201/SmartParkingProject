@@ -29,4 +29,5 @@ public class ParkingAreaService implements IParkingAreaService {
     public void remove(int id) {
         parkingAreaRepository.deleteById(id);
     }
+
 }

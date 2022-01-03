@@ -158,7 +158,9 @@
     line-height: 40px;
     font-size: 16px;
   }
-
+  .el-select{
+    width: 100%
+  }
 </style>
 <script>
   import {

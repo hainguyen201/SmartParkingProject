@@ -119,7 +119,7 @@
           <el-col :span="12">
             <div>
               <img :src="previewImage" class="uploading-image" />
-              <input style="width: 150px" type="file" accept="image/jpeg" @change="uploadImage" />
+              <input style="width: 150px" type="file" accept="image/jpeg" @change="uploadImage" ref="imagetest" />
             </div>
           </el-col>
           <el-col :span="12">
@@ -155,6 +155,7 @@
   .model-title {
     margin-top: 32px;
     margin-bottom: 24px;
+    font-weight: bold;
   }
 
   .el-row {
@@ -264,15 +265,18 @@
       },
       runModel() {
         let fd = new FormData();
+        if(this.$refs.imagetest.files.length>0){
+          fd.append("image", this.$refs.imagetest.files[0]);
+          fd.append("modelurl", this.modelView.url);
 
-        fd.append("image", this.previewImage);
-        console.log("before: ", fd);
-        fd.append("url", this.modelView.url);
-
-        this.getLicense(fd).then((data) => {
-          this.licenseImage = "data:image/jpeg;base64," + data.license;
-          this.predictResult = data.code;
+          this.getLicense(fd).then((data) => {
+            console.log(data)
+            debugger
+            this.licenseImage = "data:image/jpeg;base64," + data.license;
+            this.predictResult = data.code;
         });
+        }
+        
       },
       addNewModel() {
         this.modelAdd.status = 0;
@@ -319,7 +323,6 @@
             // element.modifiedDate=this.dateFormat(element.modifiedDate)
             self.models.push(element);
           });
-          debugger
         });
       },
       openEditDialog() {

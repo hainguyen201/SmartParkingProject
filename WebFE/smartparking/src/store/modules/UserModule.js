@@ -7,13 +7,26 @@ const getters = {
 };
 const actions = {
     async getAllUserService({commit}){
-        const response= await axios.get(BaseModel.baseUrlUser);
-        return response.data;
+        const response= await axios.get(BaseModel.baseUrlUser, BaseModel.configJsonHeader());
+        return BaseModel.handleResponse(response);
     },
     async addUserService({commit}, user){
-        const reposnse =await axios.post(BaseModel.baseUrlUser, user, BaseModel.configFormDataHeader)
-        return reposnse.data;
+        const reposnse =await axios.post(BaseModel.baseUrlUser, user, BaseModel.configFormDataHeader())
+        return BaseModel.handleResponse(reposnse);
         
+    },
+    async updateUserService({commit}, user){
+        debugger
+        const response= await axios.put(BaseModel.baseUrlUser+'/'+JSON.parse(user.get('user')).id, user, BaseModel.configFormDataHeader());
+        return BaseModel.handleResponse(response);
+    },
+    async deleteUserService({commit}, id){
+        const response= await axios.delete(BaseModel.baseUrlUser+'/'+id, BaseModel.configJsonHeader());
+        return BaseModel.handleResponse(respone);
+    },
+    async searchUserService({commit}, user){
+        const respone =await axios.post(BaseModel.baseUrlUser+'/search', user, BaseModel.configJsonHeader());
+        return BaseModel.handleResponse(respone);
     }
     
 }

@@ -1,3 +1,5 @@
+import io
+
 import cv2
 from license_detection import predict_license
 from flask import Flask
@@ -8,10 +10,13 @@ import base64
 from PIL import Image
 from pathlib import Path
 from io import BytesIO
-from character_classification import get_character
+from character_classification import get_character, get_character2
 from character_detection import char_detection
 import os, shutil
 import time
+import numpy as np
+from selenium import getLicenseFromAPI
+import io
 from sql_connect import addNewVehicle
 
 
@@ -33,14 +38,59 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/license', methods=['POST'])
+@app.route('/license2', methods=['POST'])
 def get_license_code():
+    try:
+        clear_folder()
+        image = np.array(Image.open(request.files['image']))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        license_image = predict_license(image)
+        license_image = np.array(license_image)
+        char_detection(license_image)
+        char_detect = ''.join(get_character2())
+
+        retval, buffer = cv2.imencode('.jpg', license_image)
+        encoded_string = base64.b64encode(buffer)
+        return {
+            "code": char_detect,
+            "license": encoded_string.decode('utf-8')
+        }
+    except:
+        return {
+            "code": "",
+            "license": ""
+        }
+
+
+@app.route('/license', methods=['POST'])
+def get_license_code2():
+    try:
+        clear_folder()
+        code, box = getLicenseFromAPI(request.files['image'])
+        image = np.array(Image.open(request.files['image']))
+        license_image = image[box.get('ymin'):box.get('ymax'), box.get('xmin'):box.get('xmax')]
+        retval, buffer = cv2.imencode('.jpg', license_image)
+        encoded_string = base64.b64encode(buffer)
+        return {
+            "code": code.upper(),
+            "license": encoded_string.decode('utf-8')
+        }
+    except:
+        return {
+            "code": "",
+            "license": ""
+        }
+
+
+@app.route('/licenseBE', methods=['POST'])
+def get_license_be():
     clear_folder()
-    base64_png = request.form['image']
+    base64_png = request.files['images']
     code = base64.b64decode(base64_png.split(',')[1])
     image_decoded = Image.open(BytesIO(code))
-    image_decoded.save(Path('image.png'))
-    predict_license(cv2.imread('image.png'))
+    # image_decoded.save(Path('image.png'))
+    image = np.array(image_decoded)
+    predict_license(image)
     char_detection()
     char_detect = ''.join(get_character())
     with open("predict/license/license.jpg", "rb") as image_file:
@@ -58,9 +108,10 @@ def video_feed():
     cv2.imwrite('vehicle_images/license.jpg', gen_image(camera_ip))
     return 'ok'
 
+
 @app.route('/entrances', methods=['POST'])
 def vehicleEntrance():
-    entrance_image= request.form['imageFile']
+    entrance_image = request.form['imageFile']
     print(type(entrance_image))
 
 
@@ -72,5 +123,6 @@ def gen_image(camera_ip):
         return gen_image(camera_ip)
     else:
         return frame
+
 
 app.run(host='localhost', port=8787)

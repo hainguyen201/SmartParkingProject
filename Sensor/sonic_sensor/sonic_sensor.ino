@@ -1,11 +1,20 @@
 #define TRIG_PIN D1
 #define ECHO_PIN D2
+
+#define TRIG_PIN2 D7
+#define ECHO_PIN2 D8
+
+#define TRIG_PIN3 D5
+#define ECHO_PIN3 D6
 #define TIME_OUT 5000
 
 
 // Thông tin về MQTT Broker
-#define mqtt_server "broker.mqttdashboard.com"
-#define mqtt_topic_pub "channel/topic1"
+#define mqtt_server "192.168.1.4"
+#define mqtt_topic_pub_parking "channel_hust/sonic_parking"
+#define mqtt_topic_pub_gate_camera "channel_hust/camera"
+// #define mqtt_topic_pub_gate_after "channel/sonic_gate_after"
+#define mqtt_topic_pub_gate_servo "channel_hust/servor_sensor"
 #define mqtt_topic_sub "channel/gate1_in"
 #define wifiID "A-11"
 #include <Servo.h>
@@ -15,13 +24,17 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
-const uint16_t mqtt_port = 1883;
+int status_gate_after=0;
+int status_in=0;
+int status_parking=0;
+const int gate_id=20173089;
+const int position_id=20173088;
 // const char* ssid = "EXT";
 // const char* password = "12345689";
 long lastMsg = 0;
 char msg[50];
 int value = 0;
-
+const uint16_t mqtt_port = 1883;
 //Variables
 int i = 0;
 int statusCode;
@@ -35,6 +48,9 @@ int pos = 0;
 WiFiClient espClient;
 PubSubClient client(espClient);
 ESP8266WebServer server(80);
+// AsyncWebServer serverConfig(8080);
+
+
 bool testWifi(void);
 void launchWeb(void);
 void setupAP(void);
@@ -56,8 +72,42 @@ float GetDistance()
 
   return distanceCm;
 }
+float GetDistance2()
+{
+  float duration, distanceCm;
+
+  digitalWrite(TRIG_PIN2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN2, LOW);
+
+  duration = pulseIn(ECHO_PIN2, HIGH, TIME_OUT);
+
+  // convert to distance
+  distanceCm = duration / 29.1 / 2;
+
+  return distanceCm;
+}
+float GetDistance3()
+{
+  float duration, distanceCm;
+
+  digitalWrite(TRIG_PIN3, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN3, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN3, LOW);
+
+  duration = pulseIn(ECHO_PIN3, HIGH, TIME_OUT);
+
+  // convert to distance
+  distanceCm = duration / 29.1 / 2;
+
+  return distanceCm;
+}
 void openGate(){
-  for(pos=179; pos>=1; pos-=1){
+  for(; pos>=1; pos-=1){
     gateServo.write(pos);
     delay(5);
   }
@@ -70,27 +120,32 @@ void closeGate(){
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
+  char str[length+1];
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  for (int i = 0; i < length; i++) {
-//    data[i]=(char)payload[i];
-    Serial.print((char)payload[i]);
+  int i=0;
+  for (i=0;i<length;i++) 
+    str[i]=(char)payload[i];
+  str[i] = 0;
+  Serial.println(str);
+  StaticJsonDocument<256> doc;
+  deserializeJson(doc,payload);
+  int gate_id_rev=doc["gate_id"];
+  Serial.println(gate_id_rev);
+  Serial.println(gate_id_rev==gate_id);
+  if(gate_id_rev==gate_id){
+    int status=doc["status"];
+    if(status==0){
+      closeGate();
+    }
+    if(status==1){
+      openGate();
+    }
   }
-  Serial.println();
-//  String data=String((char *)payload);
-  if(!strncmp((char *)payload, "open", length)){
-    Serial.println("open ok");
-    openGate();
-  }
-  if(!strncmp((char *)payload, "close", length)){
-    Serial.println("close ok");
-    closeGate();
-  }
-  
-  
-//  Serial.println("This is new data: "+data);
 }
+
+
 void reconnect() {
   // Chờ tới khi kết nối
   while (!client.connected()) {
@@ -101,20 +156,25 @@ void reconnect() {
       // Khi kết nối sẽ publish thông báo
       //client.publish(mqtt_topic_pub, "ESP_reconnected");
       // ... và nhận lại thông tin này
-      client.subscribe(mqtt_topic_sub);
+      client.subscribe(mqtt_topic_pub_gate_servo);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
+      Serial.println(" try again in 1 seconds");
       // Đợi 5s
       delay(5000);
     }
   }
 }
 void setup() {
-  gateServo.attach(D8);
+  gateServo.attach(D3);
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
+  pinMode(TRIG_PIN2, OUTPUT);
+  pinMode(ECHO_PIN2, INPUT);
+  pinMode(TRIG_PIN3, OUTPUT);
+  pinMode(ECHO_PIN3, INPUT);
+  
 //  pinMode (LED, OUTPUT);
   Serial.begin(115200);
   // setup_wifi();
@@ -151,6 +211,7 @@ void setup() {
   if (testWifi())
   {
     Serial.println("Succesfully Connected!!!");
+    launchWeb();
     return;
   }
   else
@@ -167,37 +228,141 @@ void setup() {
     delay(100);
     server.handleClient();
   }
-  
-
-  
-
-
 }
 void loop() {
-  // Kiểm tra kết nối
-  if (!client.connected()) {
-    reconnect();
-  }
+  
   client.loop();
+  if (!client.connected()) {
+        reconnect();
+  }
   long distance = GetDistance();
-//  if (distance > 0)
-//    snprintf (msg, 75, "distance: %ld", distance);
-//  else
-//    
-//    snprintf (msg, 75, "echo time out!");
-  StaticJsonBuffer<300> JSONbuffer;
-  JsonObject& JSONencoder = JSONbuffer.createObject();
-  JSONencoder["id"] = "A11";
-  JSONencoder["value_below"] = random(2);
-  JSONencoder["value_after"] = distance;
-  //JSONencoder["HUM"] = h;
-  char JSONmessageBuffer[100];
-  JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+  long distance_gate = GetDistance2();
+  if(distance_gate>0){
+    Serial.println("gate distance: "+String(distance_gate));
+    delay(100);
+  }
+  
+  
+  long distance_after = GetDistance3();
+//  Serial.println("after: "+String(distance_after));
+  long isVehicle= 0;
+  //sensor kiểm tra xe đang ở vị trí ra vào
+  if(distance_gate >10 && distance_gate <50){
+    
+    status_in+=1;
+    //Nếu sau 500ms vẫn có xe thì sẽ gửi tín hiệu để lấy ảnh của xe
+    if(status_in==2)
+    {
+      // Kiểm tra kết nối
       
-//  Serial.print("Publish message: ");
-//  Serial.println(JSONmessageBuffer);
-  client.publish(mqtt_topic_pub, JSONmessageBuffer);
-  delay(100);
+      //publish vehicle entry
+      StaticJsonDocument<256> doc;
+      doc["gate_id"]=gate_id;
+      doc["status"]=1;
+      doc["value"]=distance_gate;
+      char out[128];
+      int b= serializeJson(doc, out);
+      Serial.println("Publish message camera: ");
+      Serial.println(out);
+      client.publish(mqtt_topic_pub_gate_camera, out);
+      delay(2000);
+    }else{
+      if(status_in==1){
+        delay(500);
+      }
+    }
+    delay(100);
+  }else{
+    status_in=0;
+  }
+
+  //sensor ở sau cổng
+  if(distance_after >10 and distance_after <50){
+    Serial.println("after: "+ String(distance_after));
+    if(status_gate_after==0){
+      
+      // // Kiểm tra kết nối
+      // if (!client.connected()) {
+      //   reconnect();
+      // }
+      // Serial.println(distance_after);
+      // status_gate_after=0;
+      // delay(10);
+      // StaticJsonDocument<256> doc;
+      // doc["gate_id"]=gate_id;
+      // doc["status"]=1;
+      // doc["value"]=distance_after;
+      // char out[128];
+      // int b= serializeJson(doc, out);
+      // Serial.println("Publish message close servo: ");
+      // Serial.println(out);
+      // client.publish(mqtt_topic_pub_gate_servo, out);
+      delay(2000);
+    }
+    status_gate_after=1;
+  }else{
+    if(status_gate_after==1){
+      if (!client.connected()) {
+        reconnect();
+      }
+      Serial.println(distance_after);
+      status_gate_after=0;
+      delay(10);
+      StaticJsonDocument<256> doc;
+      doc["gate_id"]=gate_id;
+      doc["status"]=0;
+      doc["value"]=distance_after;
+      char out[128];
+      int b= serializeJson(doc, out);
+      Serial.println("Publish message close servo: ");
+      Serial.println(out);
+      client.publish(mqtt_topic_pub_gate_servo, out);
+//      delay(2000);
+    }
+    status_gate_after=0;
+    
+  }
+  // tại vị trí đỗ
+  if(distance >10 && distance <50){
+    if(status_parking==0){
+      status_parking=1;
+      // Kiểm tra kết nối
+      if (!client.connected()) {
+        reconnect();
+      }
+      StaticJsonDocument<256> doc;
+      doc["position_id"]=position_id;
+      doc["status"]=1;
+      doc["type"]=1;
+      doc["value"]=distance;
+      char out[128];
+      int b= serializeJson(doc, out);
+      Serial.println("Publish message parking: ");
+      Serial.println(out);
+      client.publish(mqtt_topic_pub_parking, out);
+      delay(2000);
+    }  
+  }else{
+    if(status_parking==1){
+      status_parking=0;
+      // Kiểm tra kết nối
+      if (!client.connected()) {
+        reconnect();
+      }
+      StaticJsonDocument<256> doc;
+      doc["position_id"]=position_id;
+      doc["status"]=0;
+      doc["type"]=1;
+      doc["value"]=distance;
+      char out[128];
+      int b= serializeJson(doc, out);
+      Serial.println("Publish message parking: ");
+      Serial.println(out);
+      client.publish(mqtt_topic_pub_parking, out);
+      delay(2000);
+    }
+  }
+
 
 }
 bool testWifi(void)
@@ -277,8 +442,7 @@ void setupAP(void)
   launchWeb();
   Serial.println("over");
 }
-void createWebServer()
-{
+void createWebServer(){
   {
     server.on("/", []() {
       IPAddress ip = WiFi.softAPIP();

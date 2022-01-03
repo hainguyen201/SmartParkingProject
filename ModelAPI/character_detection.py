@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 
 
-def char_detection():
+def char_detection(license):
     net = cv2.dnn.readNet("weights/yolov4-tiny-obj_final_char_detect2.weights", "config/yolov4-tiny-custom.cfg")
-    license = cv2.imread('predict/license/license.jpg')
+    # license = cv2.imread('predict/license/license.jpg')
     layer_names = net.getLayerNames()
     output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
     height, width, channels = license.shape

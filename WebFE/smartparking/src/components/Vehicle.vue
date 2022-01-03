@@ -101,6 +101,9 @@
         </el-dialog>
       </el-row>
     </div>
+    <div>
+      Tổng số xe trong bến: 2
+    </div>
     <div class="table-info" style="width: 100%">
       <el-table :data="listVehicles" style="width: 100%">
         <el-table-column fixed prop="id" label="ID" width="40">

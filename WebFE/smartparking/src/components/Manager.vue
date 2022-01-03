@@ -10,7 +10,7 @@
             <el-col :span="4">
               <el-button type="text" style="color: white; font-weight: bold">
                 <i class="el-icon-user"></i>
-                <span>Hai nguyen</span>
+                <span>{{userLogin.username}}</span>
               </el-button>
             </el-col>
             <el-col :span="4">
@@ -24,7 +24,7 @@
     <el-main>
       <el-row style="height: 100%">
         <el-col :span="4" style="height: 100%">
-          <el-menu class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff"
+          <el-menu class="el-menu-vertical-demo" default-active="3" background-color="#545c64" text-color="#fff"
             active-text-color="#ffd04b" style="height:100%">
             <el-menu-item index="1" @click="handleEntrance">
               <span>Giám sát xe ra vào </span>
@@ -32,7 +32,7 @@
             <el-menu-item index="2" @click="handleParking">
               <span>Quản lý bãi đỗ</span>
             </el-menu-item>
-            <el-menu-item index="3" @click="handleVehicle">
+            <el-menu-item  index="3" @click="handleVehicle">
               <span>Quản lý phương tiện</span>
             </el-menu-item>
             <el-menu-item index="4" @click="handleDevice">
@@ -66,6 +66,14 @@
 
 <script>
   export default {
+    data(){
+      return {
+        userLogin:{
+          username: '',
+          password: ''
+        }
+      }
+    },
     methods: {
       handleUser() {
         if (!(this.$router.history.current.path === "/users"))
@@ -91,12 +99,22 @@
           this.$router.push('/models')
       },
       handleLogout() {
-        console.log("Logout ");
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        this.$router.push('/login');
       },
       handleEntrance() {
         if (!(this.$router.history.current.path === "/entrances"))
           this.$router.push('/entrances')
-      }
+      },
+      getLocalUser(){
+        if(localStorage.getItem('user')!==null)
+          this.userLogin= JSON.parse(localStorage.getItem('user'));
+        
+      }      
+    },
+    created(){
+      this.getLocalUser();
     }
   }
 

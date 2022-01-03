@@ -33,7 +33,7 @@
     name: "Entrance",
     data() {
       return {
-        value: "http://192.168.1.4:81/stream",
+        value: null,
         cameraIP: [{
             name: "camera droid",
             address: "http://192.168.1.2:4747/video2",

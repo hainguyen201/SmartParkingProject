@@ -44,33 +44,40 @@ public class UserController {
             }
             user1.setCreatedDate(new Timestamp(new Date().getTime()));
             return new ResponseEntity<>(userService.save(user1), HttpStatus.OK);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
     }
     @PutMapping("/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable int id,
-                                           @RequestBody User user,
-                                           @RequestParam(value= "avatar") MultipartFile avatar){
-        Optional<User> userOptional= userService.findById(id);
-        return userOptional.map(user1 -> {
-            try{
-                if(Utils.checkValidFile(avatar)){
-                    user.setAvatar(avatar.getBytes());
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-                return new ResponseEntity<>(user, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            user.setId(user1.getId());
-            user.setModifiedDate(new Timestamp(new Date().getTime()));
-            return  new ResponseEntity<>(userService.save(user), HttpStatus.OK);
-        }).orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                                           @RequestParam(value = "user") String user,
+                                           @RequestParam(value= "avatar", required = false) MultipartFile avatar){
+        ObjectMapper objectMapper = new ObjectMapper();
+        User userUpdate= null;
+        try {
+            userUpdate = objectMapper.readValue(user, User.class);
+            Optional<User> userOptional= userService.findById(id);
+            User finalUserUpdate = userUpdate;
+            return  userOptional.map(user1 -> {
+
+                    if(Utils.checkValidFile(avatar)){
+                        try {
+                            finalUserUpdate.setAvatar(avatar.getBytes());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    finalUserUpdate.setId(user1.getId());
+                    finalUserUpdate.setModifiedDate(new Timestamp(new Date().getTime()));
+                    return new ResponseEntity<>(userService.save(finalUserUpdate), HttpStatus.OK);
+            }).orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
     @DeleteMapping("/users/{id}")
     public ResponseEntity<User> deleteUser(@PathVariable int id){

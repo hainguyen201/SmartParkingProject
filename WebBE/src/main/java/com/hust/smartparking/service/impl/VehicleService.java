@@ -5,6 +5,7 @@ import com.hust.smartparking.entity.Vehicle;
 import com.hust.smartparking.repository.VehicleRepository;
 import com.hust.smartparking.service.IVehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -23,7 +24,7 @@ public class VehicleService implements IVehicleService {
     private EntityManager entityManager;
     @Override
     public Iterable<Vehicle> findAll() {
-        return vehicleRepository.findAll();
+        return vehicleRepository.findAll(Sort.by(Sort.Direction.DESC, "entranceTime"));
     }
 
     @Override
@@ -89,5 +90,23 @@ public class VehicleService implements IVehicleService {
         }
         query.select(vehicleRoot).where(cb.and(predicateList.toArray(new Predicate[predicateList.size()])));
         return entityManager.createQuery(query).getResultList();
+    }
+    public Iterable<Vehicle> getLicense(String licenseNumberSearch, Long type){
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Vehicle> query=cb.createQuery(Vehicle.class);
+        Root<Vehicle> vehicleRoot=query.from(Vehicle.class);
+        Path<String> licenseNumber=vehicleRoot.get("licenseNumber");
+        Path<Timestamp> entranceTime=vehicleRoot.get("entranceTime");
+        Path<Timestamp> exitTime=vehicleRoot.get("exitTime");
+        List<Predicate> predicateList=new ArrayList<>();
+        if(licenseNumberSearch!=null && !licenseNumberSearch.isEmpty()){
+            predicateList.add(cb.like(licenseNumber, licenseNumberSearch));
+        }
+        predicateList.add(cb.isNull(exitTime));
+        predicateList.add(cb.isNotNull(entranceTime));
+        query.select(vehicleRoot).where(cb.and(predicateList.toArray(new Predicate[predicateList.size()])));
+        return entityManager.createQuery(query).getResultList();
+
+
     }
 }

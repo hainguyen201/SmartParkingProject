@@ -1,0 +1,30 @@
+Dữ liệu test:
+
+sensor gửi lên từ cảm biến kiểm tra có xe vào bến dữ liệu này sẽ được tiêu thụ bởi camera để gửi dữ liệu lên hệ thống
+topic channel_hust/camera
+{
+"gate_id": "20173089",
+"status": 1,
+}
+
+sensor gửi lên nếu có xe đi qua cổng, 
+topic channel_hust/servor_sensor
+{
+"gate_id": "20173089",
+"status": 1,
+"type": 2
+}
+
+sensor điều khiển servor 
+
+Kiểm tra xem gate_id có trùng với gate_id của mình không, nếu có thì sẽ thực hiện điều khiển cổng
+
+sensor gửi dữ liệu tại bãi đỗ: 
+channel_hust/sonic_parking
+
+{
+"position_id": "20001234",
+"status": 1,
+"type": 1
+}
+

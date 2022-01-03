@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.swing.text.html.Option;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -49,6 +51,15 @@ public class UserRepositoryTest {
         Optional<User> userOptional=repo.findById(userId);
         Assertions.assertThat(userOptional).isPresent();
         System.out.println(userOptional.get());
+    }
+    @Test
+    public void testGetUserByUserName(){
+        String username= "hainguyen202";
+        Iterable<User> userIterable= repo.findByUsername(username);
+        List<User> userList= new ArrayList<>();
+        userIterable.forEach(userList::add);
+
+        Assertions.assertThat(userList.size()).isGreaterThan(0);
     }
 //    @Test
 //    public void testDelete(){

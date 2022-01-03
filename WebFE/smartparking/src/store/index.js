@@ -5,6 +5,10 @@ import ModelModule from './modules/ModelModule';
 import EntranceModule from './modules/Entrance';
 import DeviceModule from './modules/DeviceModule'
 import VehicleModule from './modules/VehicleModule'
+import AuthModule from './modules/AuthModule'
+import ParkingAreaModule from './modules/ParkingAreaModule'
+import UtilsModule from './modules/UtilsModule'
+import ParkingSlotModule from './modules/ParkingSlotModule'
 
 // Load Vuex
 Vue.use(Vuex);
@@ -12,10 +16,14 @@ Vue.use(Vuex);
 // Create store
 export default new Vuex.Store({
     modules: {
+        UtilsModule,
         UserModule,
         ModelModule,
         EntranceModule,
         DeviceModule,
-        VehicleModule
+        VehicleModule,
+        AuthModule,
+        ParkingAreaModule,
+        ParkingSlotModule
     }
 });

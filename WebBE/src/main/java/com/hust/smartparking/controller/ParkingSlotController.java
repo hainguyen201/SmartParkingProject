@@ -46,4 +46,13 @@ public class ParkingSlotController {
             return new ResponseEntity<>(parkingSlot, HttpStatus.OK);
         }).orElseGet(()->new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+    @PutMapping("/parking_slot/status/{id}/{status}")
+    public ResponseEntity<ParkingSlot> updateParkingStatus(@PathVariable int id, @PathVariable int status){
+        Optional<ParkingSlot> parkingSlotOptional =parkingSlotService.findById(id);
+        return parkingSlotOptional.map(parkingSlot -> {
+            parkingSlot.setStatus(status);
+            return new ResponseEntity<>(parkingSlotService.save(parkingSlot), HttpStatus.OK);
+
+        }).orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 }

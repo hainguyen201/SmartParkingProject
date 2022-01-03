@@ -15,7 +15,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/manager'
+      redirect: '/login'
     },
     {
       path:'/manager',

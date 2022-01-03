@@ -26,45 +26,93 @@
         <i class="el-icon-search"></i> Tìm kiếm</el-button>
     </el-row>
 
-   
-      <el-dialog :visible.sync="parkingAreaDetail"  width="80%">
-        <el-carousel height="400px" :autoplay="false">
-        <el-carousel-item v-for="item in 4" :key="item">
-          <el-row>
-            <el-col :span="2" v-for="i in 8" :key="i" v-bind:class="{ active: true, 'col-margin': (i + 1) % 2, 'first-margin': i===1 }">
-            
-            <el-card :body-style="{ padding: '4px' }" v-for="n in 8" :key="n" style="text-align: center">
-              <el-tooltip class="item" effect="dark" :content="'A'+item+i+n" placement="top">
-                <img src="../assets/car.png" alt="" v-if="n % 2" />
-                <el-button v-if="(n%2)!==1" style="border:none" type="text">A{{item}}{{i}}{{n}}</el-button>
-              </el-tooltip>
-            </el-card>
-          </el-col>
+
+    <el-dialog :visible.sync="parkingAreaDetail" width="80%">
+      <el-carousel height="400px" :autoplay="false">
+        <el-carousel-item v-for="(item, index1) in viewNumber" :key="index1">
+          <el-row style="padding-top:16px">
+            <el-col :span="2" v-for="(parkingCol, index2) in item" :key="index2"
+              v-bind:class="{ active: true, 'col-margin': (index2) % 2, 'first-margin': index2%8==0 }">
+
+              <el-card :body-style="{ padding: '4px' }" v-for="(parkingslot, index3) in parkingCol" :key="index3"
+                style="text-align: center">
+                <el-tooltip class="item" effect="dark" :content="''+parkingslot.id" placement="top">
+                  <img src="../assets/car.png" alt="" v-if="parkingslot.status==1" />
+                  <el-button v-if="parkingslot.status==0" style="border:none" type="text">{{parkingslot.id}}</el-button>
+                </el-tooltip>
+              </el-card>
+            </el-col>
           </el-row>
-          
+
         </el-carousel-item>
       </el-carousel>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="parkingAreaDetail = false">Đóng</el-button>
-        </span>
-      </el-dialog>
-    
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="reloadParking">Tải lại</el-button>
+        <el-button @click="parkingAreaDetail = false">Đóng</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog :visible.sync="parkingEditDialog" width="80%" title="Sửa bãi đỗ">
+      <el-row type="flex" justify="space-between">
+        <el-col :span="6" class="parking-area-info">
+          <el-form :model="parkingAreaEdit">
+            <el-form-item label="Mã bãi đỗ" :label-width="formLabelWidth">
+              <el-input v-model="parkingAreaEdit.id"></el-input>
+            </el-form-item>
+            <el-form-item label="Tên bãi đỗ" :label-width="formLabelWidth">
+              <el-input v-model="parkingAreaEdit.name"></el-input>
+            </el-form-item>
+          </el-form>
+        </el-col>
+        <el-col :span="8" class="parking-slot-info">
+          <h5>Danh sách vị trí đỗ</h5>
+          <el-table :data="listParkingSlotPage">
+            <el-table-column fixed prop="id" label="Mã vị trí" width="150">
+            </el-table-column>
+            <el-table-column prop="status" label="Trạng thái" width="160">
+            </el-table-column>
+            <!-- <el-table-column prop="type" label="Loại bãi đỗ" width="300">
+      </el-table-column> -->
+            <el-table-column label="Thao tác" width="120">
+              <template slot-scope="scope">
+                <el-button @click="showParkingDetail(scope.$index, scope.row)" type="text" size="small">Xóa
+                </el-button>
+                <el-button type="text" size="small" @click="showParkingEdit(scope.$index, scope.row)">Sửa</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="block">
+            <!-- <span class="demonstration">When you have few pages</span> -->
+            <el-pagination layout="prev, pager, next" :total="listParkingSlot.length" :page-size="10" @current-change="handleCurrentChange">
+            </el-pagination>
+          </div>
+        </el-col>
+        <el-col :span='4'>
+          <el-button>Thêm</el-button>
+        </el-col>
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="saveParkingArea">Lưu</el-button>
+        <el-button @click="parkingEditDialog = false">Đóng</el-button>
+      </span>
+    </el-dialog>
 
     <el-table :data="listParkingArea" style="width: 100%">
       <el-table-column fixed prop="id" label="Mã bãi đỗ" width="150">
       </el-table-column>
-      <el-table-column prop="name" label="Tên bãi đỗ" width="120">
+      <el-table-column prop="name" label="Tên bãi đỗ" width="160">
       </el-table-column>
-      <el-table-column prop="numInUsed" label="Chỗ đã đỗ" width="120">
+      <el-table-column prop="numNotInUsed" label="Chỗ chưa đỗ" width="120">
       </el-table-column>
       <el-table-column prop="maxNumber" label="Số lượng tối đa" width="140">
+      </el-table-column>
+      <el-table-column prop="createdDate" label="Ngày tạo" width="160">
       </el-table-column>
       <!-- <el-table-column prop="type" label="Loại bãi đỗ" width="300">
       </el-table-column> -->
       <el-table-column label="Thao tác" width="120">
         <template slot-scope="scope">
-          <el-button @click="showParkingDetail" type="text" size="small">Chi tiết</el-button>
-          <el-button type="text" size="small">Sửa</el-button>
+          <el-button @click="showParkingDetail(scope.$index, scope.row)" type="text" size="small">Chi tiết</el-button>
+          <el-button type="text" size="small" @click="showParkingEdit(scope.$index, scope.row)">Sửa</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -96,8 +144,9 @@
   .col-margin {
     margin-right: 64px;
   }
-  .first-margin{
-    margin-left: 64px;
+
+  .first-margin {
+    margin-left: 128px;
   }
 
   .el-carousel__item:nth-child(n) {
@@ -107,6 +156,10 @@
 
 </style>
 <script>
+  import {
+    mapActions
+  } from "Vuex";
+  import moment from 'moment';
   export default {
     name: "Parking",
     data() {
@@ -115,6 +168,16 @@
         parkingName: "",
         parkingCode: "",
         parkingAreaDetail: false,
+        parkingEditDialog: false,
+        parkingAreaViewIndex: null,
+        formLabelWidth: '120px',
+        listParkingSlot: [],
+        listParkingSlotPage:[],
+        parkingAreaEdit: {
+          id: null,
+          name: null,
+          parkingSlots: []
+        },
         parkingArea: [
           [{
               status: 1,
@@ -133,16 +196,128 @@
         listParkingArea: [{
           id: 1,
           name: "Bãi tầng 1A",
-          numInUsed: 13,
+          numNotInUsed: 0,
           maxNumber: 50
         }],
+        viewNumber: [],
+        listParkingAreaLength: 0,
+
       };
     },
     methods: {
+      ...mapActions(['getParkingAreaService', 'getParkingSlotsByIdService', 'getEmptySlotByParkingAreaId',
+        'getAllParkingSlot'
+      ]),
+      handleCurrentChange(val){
+        console.log(this.listParkingSlot);
+        var len=this.listParkingSlot.length;
+        var end;
+        if(len<val*10)
+          end=len;
+        else
+          end=val*10;
+        
+      
+        this.listParkingSlotPage=this.listParkingSlot.slice((val-1)*10, end);
+      },
       handleDetail() {},
-      showParkingDetail() {
-        this.parkingAreaDetail=true
-      }
+      showParkingEdit(index, row) {
+        this.parkingEditDialog = true;
+        this.parkingAreaEdit.id = row.id;
+        this.parkingAreaEdit.name = row.name;
+        this.listParkingSlot = this.listParkingArea[index].parkingSlots;
+        if(this.listParkingSlot.length>10)
+          this.listParkingSlotPage=this.listParkingSlot.slice(0, 10);
+        else{
+          this.listParkingSlotPage=this.listParkingSlot.slice(0, this.listParkingSlot.length);
+        }
+      },
+      saveParkingArea() {
+
+      },
+      showParkingDetail(index, row) {
+        this.viewNumber = [];
+        this.parkingAreaDetail = true;
+        this.parkingAreaViewIndex = index
+        this.getViewDataParkingArea(index);
+      },
+      getViewDataParkingArea(index) {
+        var len = this.listParkingArea[index].parkingSlots.length;
+        var idx = 0;
+        var indexView = 0;
+        var indexCol = 0;
+        while (idx != len) {
+          this.viewNumber[indexView] = []
+          for (let j = 0; j < 8; j++) {
+            var newCol = [];
+            this.viewNumber[indexView][indexCol] = [];
+            for (let i = 0; i < 8; i++) {
+              newCol.push(this.listParkingArea[index].parkingSlots[idx])
+              idx++;
+              if (idx >= len)
+                break;
+            }
+            this.viewNumber[indexView][indexCol] = newCol;
+            if (idx >= len)
+              break;
+            indexCol++;
+          }
+          indexView++;
+        }
+      },
+      reloadParking() {
+        var id = this.listParkingArea[this.parkingAreaViewIndex].id;
+        this.getParkingSlotsByIdService(id).then(data3 => {
+          this.listParkingArea[this.parkingAreaViewIndex].parkingSlots = data3;
+          this.listParkingArea[this.parkingAreaViewIndex].maxNumber = data3.length;
+          this.getViewDataParkingArea(this.parkingAreaViewIndex);
+          this.parkingAreaDetail = false;
+          this.parkingAreaDetail = true;
+        })
+
+      },
+      getListParkingArea() {
+        this.listParkingArea = [];
+        this.getParkingAreaService().then(data => {
+          data.forEach((element) => {
+            // element.createdDate=this.dateFormat(element.createdDate);
+            console.log(element);
+            // debugger
+            this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
+              element.numNotInUsed = data2;
+              element.createdDate = this.dateFormat(element.createdDate);
+              this.getParkingSlotsByIdService(element.id).then(data3 => {
+                element.parkingSlots = data3
+                element.maxNumber = data3.length;
+                this.listParkingArea.push(element);
+              })
+
+            })
+          })
+
+        })
+        // this.viewNumber= this.listParkingArea.length;
+
+      },
+      getListParkingSlot() {
+        this.getAllParkingSlot().then(data => {
+          data
+        })
+      },
+      dateFormat(value) {
+        if (value != null) {
+          return moment(String(value)).format("yyyy-MM-DD HH:mm:ss");
+        } else {
+          return value;
+        }
+      },
+      dateFormatEdit(value) {
+        if (value != null) {
+          return moment(String(value)).format("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        } else {
+          return value;
+        }
+      },
     },
     computed: {
       tableFilter() {
@@ -157,6 +332,9 @@
         }
       },
     },
+    created() {
+      this.getListParkingArea();
+    }
   };
 
 </script>

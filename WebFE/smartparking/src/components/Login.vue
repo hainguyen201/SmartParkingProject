@@ -13,7 +13,7 @@
         <el-form-item>
           <el-button :loading="loading" class="login-button" type="primary" native-type="submit" block>Login</el-button>
         </el-form-item>
-        <a class="forgot-password" href="">Forgot password ?</a>
+        <!-- <a class="forgot-password" href="">Forgot password ?</a> -->
       </el-form>
     </el-card>
   </div>
@@ -24,27 +24,33 @@
     width: 100vw;
     background-image: 'assets/loginbg.jpg';
   }
-  .login {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
-.login-button {
-  width: 100%;
-  margin-top: 40px;
-}
-.login-form {
-  width: 290px;
-}
-.forgot-password {
-  margin-top: 10px;
-}
+  .login {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-button {
+    width: 100%;
+    margin-top: 40px;
+  }
+
+  .login-form {
+    width: 290px;
+  }
+
+  .forgot-password {
+    margin-top: 10px;
+  }
 
 </style>
 
 <script>
+  import {
+    mapActions
+  } from "Vuex";
   export default {
     name: "Login",
     data() {
@@ -85,6 +91,7 @@
       }
     },
     methods: {
+      ...mapActions(['loginService']),
       simulateLogin() {
         return new Promise(resolve => {
           setTimeout(resolve, 800);
@@ -97,15 +104,28 @@
         }
         this.loading = true;
         await this.simulateLogin();
-        this.loading = false;
-        if (
-          this.model.username === this.validCredentials.username &&
-          this.model.password === this.validCredentials.password
-        ) {
-          this.$message.success("Login successfull");
-        } else {
-          this.$message.error("Username or password is invalid");
-        }
+        this.loginService(this.model).then(data => {
+          this.loading = false;
+          if (data === 'error')
+            this.$message.error("Username or password is invalid");
+          else {
+            if (data.status === 200) {
+              localStorage.setItem('user', JSON.stringify(this.model))
+              localStorage.setItem('token', 'Bearer '+  data.data.token);
+              this.$router.push('/vehicles');
+            }
+
+          }
+        })
+
+        // if (
+        //   this.model.username === this.validCredentials.username &&
+        //   this.model.password === this.validCredentials.password
+        // ) {
+        //   this.$message.success("Login successfull");
+        // } else {
+        //   this.$message.error("Username or password is invalid");
+        // }
       }
     }
   }
