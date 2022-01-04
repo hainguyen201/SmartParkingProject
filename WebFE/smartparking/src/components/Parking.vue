@@ -82,7 +82,7 @@
           </el-table>
           <div class="block">
             <!-- <span class="demonstration">When you have few pages</span> -->
-            <el-pagination layout="prev, pager, next" :total="listParkingSlot.length" :page-size="10" @current-change="handleCurrentChange">
+            <el-pagination layout="prev, pager, next" :total="listParkingSlot.length" :page-size="10" @current-change="handleCurrentChangeSlot">
             </el-pagination>
           </div>
         </el-col>
@@ -96,7 +96,7 @@
       </span>
     </el-dialog>
 
-    <el-table :data="listParkingArea" style="width: 100%">
+    <el-table :data="listParkingAreaPage" style="width: 100%; height: 620px" max-height="620" v-loading="loadingArea">
       <el-table-column fixed prop="id" label="Mã bãi đỗ" width="150">
       </el-table-column>
       <el-table-column prop="name" label="Tên bãi đỗ" width="160">
@@ -117,10 +117,10 @@
       </el-table-column>
     </el-table>
 
-    <!-- <el-row class="pagination">
-      <el-pagination layout="prev, pager, next" :total="10" :page-size="1">
+    <el-row class="pagination">
+      <el-pagination layout="prev, pager, next" :total="listParkingArea.length" :page-size="10" @current-change="handleCurrentChangeArea">
       </el-pagination>
-    </el-row> -->
+    </el-row>
   </div>
 </template>
 <style scoped>
@@ -193,14 +193,11 @@
             },
           ],
         ],
-        listParkingArea: [{
-          id: 1,
-          name: "Bãi tầng 1A",
-          numNotInUsed: 0,
-          maxNumber: 50
-        }],
+        listParkingArea: [],
+        listParkingAreaPage: [],
         viewNumber: [],
         listParkingAreaLength: 0,
+        loadingArea: false
 
       };
     },
@@ -208,8 +205,8 @@
       ...mapActions(['getParkingAreaService', 'getParkingSlotsByIdService', 'getEmptySlotByParkingAreaId',
         'getAllParkingSlot'
       ]),
-      handleCurrentChange(val){
-        console.log(this.listParkingSlot);
+      handleCurrentChangeSlot(val){
+        // console.log(this.listParkingSlot);
         var len=this.listParkingSlot.length;
         var end;
         if(len<val*10)
@@ -220,12 +217,28 @@
       
         this.listParkingSlotPage=this.listParkingSlot.slice((val-1)*10, end);
       },
+      handleCurrentChangeArea(val){
+        var len=this.listParkingArea.length;
+        var end;
+        if(len<val*10)
+          end=len;
+        else
+          end=val*10;
+        
+      
+        this.listParkingAreaPage=this.listParkingArea.slice((val-1)*10, end);
+      },
       handleDetail() {},
       showParkingEdit(index, row) {
         this.parkingEditDialog = true;
         this.parkingAreaEdit.id = row.id;
         this.parkingAreaEdit.name = row.name;
-        this.listParkingSlot = this.listParkingArea[index].parkingSlots;
+        this.listParkingArea.forEach(element=>{
+          if(element.id==row.id){
+            this.listParkingSlot=element.parkingSlots;
+          }
+        })
+        // this.listParkingSlot = this.listParkingArea[index].parkingSlots;
         if(this.listParkingSlot.length>10)
           this.listParkingSlotPage=this.listParkingSlot.slice(0, 10);
         else{
@@ -277,19 +290,23 @@
 
       },
       getListParkingArea() {
+        this.loadingArea=false
         this.listParkingArea = [];
         this.getParkingAreaService().then(data => {
+          // data=data.sort((a, b) => (a.id > b.id) ? 1 : -1)
           data.forEach((element) => {
-            // element.createdDate=this.dateFormat(element.createdDate);
-            console.log(element);
-            // debugger
+            element.createdDate = this.dateFormat(element.createdDate);
+            // this.listParkingArea.push(element);
+            // if(this.listParkingAreaPage.length<10)
+            //   this.listParkingAreaPage.push(element);
             this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
               element.numNotInUsed = data2;
-              element.createdDate = this.dateFormat(element.createdDate);
               this.getParkingSlotsByIdService(element.id).then(data3 => {
                 element.parkingSlots = data3
                 element.maxNumber = data3.length;
                 this.listParkingArea.push(element);
+                if(this.listParkingAreaPage.length<10)
+                  this.listParkingAreaPage.push(element);
               })
 
             })
@@ -297,7 +314,26 @@
 
         })
         // this.viewNumber= this.listParkingArea.length;
+        // var flag=0
+        // this.listParkingArea.forEach(element=>{
+        //     this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
+        //       element.numNotInUsed = data2;
+        //       this.getParkingSlotsByIdService(element.id).then(data3 => {
+        //         element.parkingSlots = data3
+        //         element.maxNumber = data3.length;
+        //         flag++;
+        //         console.log(flag)
+        //         if(flag==this.listParkingArea.length)
+        //           this.loadingArea=false
 
+        //         // this.listParkingArea.push(element);
+        //         // if(this.listParkingAreaPage.length<10)
+        //         //   this.listParkingAreaPage.push(element);
+        //       })
+
+        //     })
+        // })
+        
       },
       getListParkingSlot() {
         this.getAllParkingSlot().then(data => {

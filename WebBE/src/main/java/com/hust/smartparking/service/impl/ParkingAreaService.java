@@ -4,6 +4,7 @@ import com.hust.smartparking.entity.ParkingArea;
 import com.hust.smartparking.repository.ParkingAreaRepository;
 import com.hust.smartparking.service.IParkingAreaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,7 +13,7 @@ public class ParkingAreaService implements IParkingAreaService {
     @Autowired private ParkingAreaRepository parkingAreaRepository;
     @Override
     public Iterable<ParkingArea> findAll() {
-        return parkingAreaRepository.findAll();
+        return parkingAreaRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
     @Override
