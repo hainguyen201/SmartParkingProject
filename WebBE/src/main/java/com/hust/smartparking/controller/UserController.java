@@ -31,29 +31,33 @@ public class UserController {
         return userOptional.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    @PostMapping(value = "/users")
-    public ResponseEntity<User> addUser(@RequestParam(value = "user") String user,
-                                        @RequestParam(value= "avatar", required = false) MultipartFile avatar){
-        ObjectMapper objectMapper = new ObjectMapper();
-        User user1= null;
-        try {
-            user1 = objectMapper.readValue(user, User.class);
-            if(Utils.checkValidFile(avatar)){
+//    @PostMapping(value = "/users")
+//    public ResponseEntity<User> addUser(@RequestParam(value = "user") User user){
+//        return
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        User user1= null;
+//        try {
+//            user1 = objectMapper.readValue(user, User.class);
+//            if(Utils.checkValidFile(avatar)){
+//
+//                user1.setAvatar(avatar.getBytes());
+//            }
+//            user1.setCreatedDate(new Timestamp(new Date().getTime()));
+//            return new ResponseEntity<>(userService.save(user1), HttpStatus.OK);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//
+//        }
+//    }
+    @PostMapping(value = "/users/search")
+    public ResponseEntity<Iterable<User>> searchUser(@RequestBody User user){
+        return new ResponseEntity<>(userService.searchData(user), HttpStatus.OK);
 
-                user1.setAvatar(avatar.getBytes());
-            }
-            user1.setCreatedDate(new Timestamp(new Date().getTime()));
-            return new ResponseEntity<>(userService.save(user1), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
-        }
     }
     @PutMapping("/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable int id,
-                                           @RequestParam(value = "user") String user,
-                                           @RequestParam(value= "avatar", required = false) MultipartFile avatar){
+                                           @RequestParam(value = "user") String user){
         ObjectMapper objectMapper = new ObjectMapper();
         User userUpdate= null;
         try {
@@ -61,14 +65,7 @@ public class UserController {
             Optional<User> userOptional= userService.findById(id);
             User finalUserUpdate = userUpdate;
             return  userOptional.map(user1 -> {
-
-                    if(Utils.checkValidFile(avatar)){
-                        try {
-                            finalUserUpdate.setAvatar(avatar.getBytes());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    finalUserUpdate.setPassword(user1.getPassword());
                     finalUserUpdate.setId(user1.getId());
                     finalUserUpdate.setModifiedDate(new Timestamp(new Date().getTime()));
                     return new ResponseEntity<>(userService.save(finalUserUpdate), HttpStatus.OK);

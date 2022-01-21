@@ -56,6 +56,8 @@ public class VehicleController {
     public ResponseEntity<Vehicle> updateVehicle(@RequestParam(value = "vehicle") String vehicleString,
                                                  @RequestParam(value = "entranceImage", required = false) MultipartFile entranceImage,
                                                  @RequestParam(value = "exitImage", required = false) MultipartFile exitImage,
+                                                 @RequestParam(value ="exitImageDelete", required = false)Boolean exitImageDelete,
+                                                 @RequestParam(value ="entranceImageDelete", required = false)Boolean entranceImageDelete,
                                                  @PathVariable int id){
         Optional<Vehicle> vehicleOptional= vehicleService.findById(id);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -71,9 +73,15 @@ public class VehicleController {
                 try{
                     if(Utils.checkValidFile(entranceImage)){
                         finalVehicle.setEntranceImage(entranceImage.getBytes());
+                    }else{
+                        if(entranceImageDelete!=null && entranceImageDelete)
+                            finalVehicle.setEntranceImage(null);
                     }
                     if(Utils.checkValidFile(exitImage)){
                         finalVehicle.setExitImage(exitImage.getBytes());
+                    }else{
+                        if(exitImageDelete!=null && exitImageDelete)
+                            finalVehicle.setExitImage(null);
                     }
                 }catch (Exception e){
                     e.printStackTrace();

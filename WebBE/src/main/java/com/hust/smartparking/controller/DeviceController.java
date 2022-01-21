@@ -24,6 +24,10 @@ public class DeviceController {
         return deviceOptional.map(device -> new ResponseEntity<>(device, HttpStatus.OK))
                 .orElseGet(()->new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+    @GetMapping("/devices/gates/{id}")
+    public ResponseEntity<Iterable<Device>> getDeviceByGateId(@PathVariable Long id){
+        return new ResponseEntity<>(deviceService.findByGateId(id), HttpStatus.OK);
+    }
     @PostMapping("/devices")
     public ResponseEntity<Device> addDevice(@RequestBody Device device){
         device.setCreatedDate(new Timestamp(new Date().getTime()));

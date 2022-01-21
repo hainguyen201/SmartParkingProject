@@ -3,8 +3,8 @@ import numpy as np
 import os
 from glob import glob
 import shutil
-def predict_license(img):
-    net = cv2.dnn.readNet("weights/yolov4-tiny-obj_3000.weights", "config/yolov4-tiny-custom.cfg")
+def predict_license(img, indexSave=0):
+    net = cv2.dnn.readNet("weights/yolov4-tiny-obj_best_license_detect.weights", "config/yolov4-tiny-custom.cfg")
     layer_names = net.getLayerNames()
     output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
     scaleRate = img.shape[1] / 500
@@ -25,7 +25,7 @@ def predict_license(img):
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
-            if confidence > 0.3:
+            if confidence > 0.5:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
@@ -54,25 +54,44 @@ def predict_license(img):
             height = h / image_height
             return x, y, width, height
             # return image_license
-            # cv2.imwrite(r"predict/license/license.jpg", image_license)
-base_dir='../../Dataset/Car_long/'
-save_dr='../../Dataset/LicenseDetectDatasetTmp/'
-list_images=glob(base_dir+'*')
+            # base_dir = '../../Dataset/Car_long_license/'
+            # cv2.imwrite(base_dir+str(indexSave)+'.jpg', image_license)
+# indexSave=0
+#
+# list_vehicle_path=glob("../../Dataset/Car_long/*.jpg")
+# for vehicle_path in list_vehicle_path:
+#     image=cv2.imread(vehicle_path)
+#     image=cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+#     predict_license(image, indexSave)
+#     indexSave=indexSave+1
+#
+#
+#
+base_dir='../../Dataset/LicenseDetectDatasetTest/'
+
+
+save_dr='../../Dataset/LicenseDetectDatasetTest/'
+# list_images=glob(base_dir+'*.jpg')
+# list_images=list_images.sort()
+list_images=os.listdir(save_dr)
+list_images=[name[:-4] for name in list_images if name[-3:]!='txt']
 index=0
 list_errors=[]
-print(list_images[251])
-for image_path in list_images[:500]:
-    image=cv2.imread(base_dir+image_path)
+# print(list_images)
+for image_path in list_images:
+    image=cv2.imread(base_dir+image_path+'.jpg')
 
     box=predict_license(image)
     if box!=None:
-        f=open(save_dr +'carlong'+str(index)+'.txt', 'x')
+        f=open(save_dr +image_path+'.txt', 'x')
         f.write('%d %.6f %.6f %.6f %.6f'% (0,box[0], box[1], box[2], box[3]))
-        cv2.imwrite(save_dr + 'carlong'+str(index) + '.jpg', image)
-        index+=1
+        # cv2.imwrite(save_dr + str(index) + '.jpg', image)
+
     else:
         list_errors.append(image_path)
+    index += 1
 print(list_errors)
+
 # f=open('errrors.txt', 'r')
 # save_dr='../../Dataset/LicenseDetectDataset3/'
 # file_errors= f.readlines()

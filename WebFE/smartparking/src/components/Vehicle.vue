@@ -8,7 +8,7 @@
         <el-col :span="6">
           <el-input v-model="vehicleSearch.licenseNumber"></el-input>
         </el-col>
-        <el-col :span="3">
+        <el-col :span="4">
           <span type="text">Loại phương tiện:</span>
         </el-col>
         <el-col :span="6">
@@ -26,11 +26,11 @@
         <el-col :span="6">
           <el-date-picker type="datetime" v-model="vehicleSearch.entranceTimeStart"></el-date-picker>
         </el-col>
-        <el-col :span="3">
+        <el-col :span="4">
           <span type="text">Đến</span>
         </el-col>
         <el-col :span="6">
-          <el-date-picker v-model="vehicleSearch.entranceTimeEnd"  type="datetime"></el-date-picker>
+          <el-date-picker v-model="vehicleSearch.entranceTimeEnd" type="datetime"></el-date-picker>
         </el-col>
       </el-row>
       <el-row :gutter="20">
@@ -38,13 +38,13 @@
           <span>Thời gian ra từ: </span>
         </el-col>
         <el-col :span="6">
-          <el-date-picker type="datetime"  v-model="vehicleSearch.exitTimeStart"></el-date-picker>
+          <el-date-picker type="datetime" v-model="vehicleSearch.exitTimeStart"></el-date-picker>
         </el-col>
-        <el-col :span="3">
+        <el-col :span="4">
           <span type="text">Đến</span>
         </el-col>
         <el-col :span="6">
-          <el-date-picker type="datetime"  v-model="vehicleSearch.exitTimeEnd"></el-date-picker>
+          <el-date-picker type="datetime" v-model="vehicleSearch.exitTimeEnd"></el-date-picker>
         </el-col>
       </el-row>
       <el-row :gutter="4" type="flex" justify="start">
@@ -72,23 +72,26 @@
             </el-form-item>
 
             <el-form-item label="Thời gian vào" :label-width="formLabelWidth">
-              <el-date-picker type="datetime"  v-model="vehicleAdd.entranceTime">
+              <el-date-picker type="datetime" v-model="vehicleAdd.entranceTime">
               </el-date-picker>
             </el-form-item>
             <el-form-item label="Thời gian ra" :label-width="formLabelWidth">
-              <el-date-picker type="datetime"  v-model="vehicleAdd.exitTime">
+              <el-date-picker type="datetime" v-model="vehicleAdd.exitTime">
               </el-date-picker>
             </el-form-item>
             <el-form-item label="Ảnh xe vào" :label-width="formLabelWidth">
-              <input type="file" :v-model="vehicleAdd.entranceImage" @change="previewAddEntranceImage" ref="addEntranceImage">
-              <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('addEntrance')"></el-button>
+              <input type="file" :v-model="vehicleAdd.entranceImage" @change="previewAddEntranceImage"
+                ref="addEntranceImage">
+              <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('addEntrance')">
+              </el-button>
               <div>
                 <img :src="previewAddEntranceSrc" alt="" class="preview-image">
               </div>
             </el-form-item>
             <el-form-item label="Ảnh xe ra" :label-width="formLabelWidth">
               <input :v-model="vehicleAdd.exitImage" type="file" @change="previewAddExitImage" ref="addExitImage">
-              <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('addExit')"></el-button>
+              <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('addExit')">
+              </el-button>
               <div>
                 <img :src="previewAddExitSrc" alt="" class="preview-image">
               </div>
@@ -102,10 +105,10 @@
       </el-row>
     </div>
     <div>
-      Tổng số xe trong bến: 2
+      Tổng số xe trong bến: {{numberInParking}}
     </div>
     <div class="table-info" style="width: 100%">
-      <el-table :data="listVehicles" style="width: 100%">
+      <el-table :data="listVehiclesPage" style="width: 100%">
         <el-table-column fixed prop="id" label="ID" width="40">
         </el-table-column>
         <el-table-column prop="licenseNumber" label="Biển số" width="140">
@@ -136,6 +139,12 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="block">
+        <!-- <span class="demonstration">When you have few pages</span> -->
+        <el-pagination layout="prev, pager, next" :total="listVehicles.length" :page-size="10" v-if="listVehicles.length>0"
+          @current-change="handleCurrentChangePage">
+        </el-pagination>
+      </div>
       <el-dialog title="Sửa phương tiện" :visible.sync="dialogEditForm">
         <el-form :model="vehicleEdit">
           <el-form-item label="Biển số" :label-width="formLabelWidth">
@@ -149,23 +158,25 @@
           </el-form-item>
 
           <el-form-item label="Thời gian vào" :label-width="formLabelWidth">
-            <el-date-picker type="datetime" 
-              v-model="vehicleEdit.entranceTime"></el-date-picker>
+            <el-date-picker type="datetime" v-model="vehicleEdit.entranceTime"></el-date-picker>
           </el-form-item>
           <el-form-item label="Thời gian ra" :label-width="formLabelWidth">
-            <el-date-picker type="datetime"  v-model="vehicleEdit.exitTime">
+            <el-date-picker type="datetime" v-model="vehicleEdit.exitTime">
             </el-date-picker>
           </el-form-item>
           <el-form-item label="Ảnh xe vào" :label-width="formLabelWidth">
-            <input :v-model="vehicleEdit.entranceImage" type="file" @change="previewEditEntranceImage" ref="editEntranceImage">
-            <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('editEntrance')"></el-button>
+            <input :v-model="vehicleEdit.entranceImage" type="file" @change="previewEditEntranceImage"
+              ref="editEntranceImage">
+            <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('editEntrance')">
+            </el-button>
             <div>
               <img :src="previewEditEntranceSrc" alt="" class="preview-image">
             </div>
           </el-form-item>
           <el-form-item label="Ảnh xe ra" :label-width="formLabelWidth">
             <input :v-model="vehicleEdit.exitImage" type="file" @change="previewEditExitImage" ref="editExitImage">
-            <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('editExit')"></el-button>
+            <el-button title="Loại bỏ file" icon="el-icon-circle-close" circle @click="clearImage('editExit')">
+            </el-button>
             <div>
               <img :src="previewEditExitSrc" alt="" class="preview-image">
             </div>
@@ -203,15 +214,19 @@
     line-height: 40px;
     font-size: 16px;
   }
-  .preview-image{
+
+  .preview-image {
     height: 150px;
     width: 150px;
     margin-top: 8px;
   }
-  .el-date-editor.el-input, .el-date-editor.el-input__inner{
+
+  .el-date-editor.el-input,
+  .el-date-editor.el-input__inner {
     width: 100%;
   }
-  .el-select{
+
+  .el-select {
     width: 100%;
   }
 
@@ -225,6 +240,7 @@
     name: "Vehicle",
     data() {
       return {
+        numberInParking: 1,
         vehicleSearch: {
           id: null,
           licenseNumber: null,
@@ -293,64 +309,77 @@
         //   entranceImage: null,
         //   exitImage: null
         // },
-        imageAddreview:[],
-        previewAddEntranceSrc:null,
-        previewAddExitSrc:null,
-        previewEditEntranceSrc:null,
-        previewEditExitSrc:null,
+        imageAddreview: [],
+        previewAddEntranceSrc: null,
+        previewAddExitSrc: null,
+        previewEditEntranceSrc: null,
+        previewEditExitSrc: null,
+        listVehiclesPage: []
       };
     },
     methods: {
       ...mapActions(["getAllVehicleService", "editVehicleService", "addVehicleService", "deleteVehicleService",
         "searchVehicleService"
       ]),
-      clearImage(type){
-        if(type==="addEntrance"){
-          this.$refs.addEntranceImage.value=null;
-          this.previewAddEntranceSrc=null;
-        }
-        if(type==="addExit"){
-          this.$refs.addExitImage.value=null;
-          this.previewAddExitSrc=null;
-        }
-        if(type==="editEntrance"){
-          this.$refs.editEntranceImage.value=null;
-          this.previewEditEntranceSrc=null;
-        }
-        if(type==="editExit"){
-          this.$refs.editExitImage.value=null;
-          this.previewEditExitSrc=null;
-        }
-        
+      handleCurrentChangePage(val) {
+        var len = this.listVehicles.length;
+        var end;
+        if (len < val * 10)
+          end = len;
+        else
+          end = val * 10;
+
+
+        this.listVehiclesPage = this.listVehicles.slice((val - 1) * 10, end);
+
       },
-      
-      handleImage(e){
+      clearImage(type) {
+        if (type === "addEntrance") {
+          this.$refs.addEntranceImage.value = null;
+          this.previewAddEntranceSrc = null;
+        }
+        if (type === "addExit") {
+          this.$refs.addExitImage.value = null;
+          this.previewAddExitSrc = null;
+        }
+        if (type === "editEntrance") {
+          this.$refs.editEntranceImage.value = null;
+          this.previewEditEntranceSrc = null;
+        }
+        if (type === "editExit") {
+          this.$refs.editExitImage.value = null;
+          this.previewEditExitSrc = null;
+        }
+
+      },
+
+      handleImage(e) {
         // let imagePre= imagePreview
         const image = e.target.files[0];
         const reader = new FileReader();
         reader.readAsDataURL(image);
         return reader;
       },
-      previewAddEntranceImage(e){
-        const reader= this.handleImage(e);
+      previewAddEntranceImage(e) {
+        const reader = this.handleImage(e);
         reader.onload = (e) => {
           this.previewAddEntranceSrc = e.target.result;
         };
       },
-      previewAddExitImage(e){
-        const reader= this.handleImage(e);
+      previewAddExitImage(e) {
+        const reader = this.handleImage(e);
         reader.onload = (e) => {
           this.previewAddExitSrc = e.target.result;
         };
       },
-      previewEditEntranceImage(e){
-        const reader= this.handleImage(e);
+      previewEditEntranceImage(e) {
+        const reader = this.handleImage(e);
         reader.onload = (e) => {
           this.previewEditEntranceSrc = e.target.result;
         };
       },
-      previewEditExitImage(e){
-        const reader= this.handleImage(e);
+      previewEditExitImage(e) {
+        const reader = this.handleImage(e);
         reader.onload = (e) => {
           this.previewEditExitSrc = e.target.result;
         };
@@ -364,13 +393,13 @@
         this.vehicleEdit.type = this.getVehicleTypeCode(row.type);
         this.vehicleEdit.entranceTime = row.entranceTime;
         this.vehicleEdit.exitTime = row.exitTime;
-        this.previewEditEntranceSrc=row.entranceImage;
-        this.previewEditExitSrc=row.exitImage;
+        this.previewEditEntranceSrc = row.entranceImage;
+        this.previewEditExitSrc = row.exitImage;
       },
       openDialogDetail(index, row) {
 
       },
-      
+
       openDeleteDialog(index, row) {
         this.dialogDeleteVisible = true
         this.vehicleDelete = row
@@ -385,20 +414,30 @@
         let vehicle = {};
         vehicle.licenseNumber = this.vehicleEdit.licenseNumber;
         vehicle.type = this.vehicleEdit.type;
-        vehicle.entranceTime = this.vehicleEdit.entranceTime==null ? null: new Date(this.vehicleEdit.entranceTime);
-        vehicle.exitTime = this.vehicleEdit.exitTime==null ? null: new Date(this.vehicleEdit.exitTime);
+        vehicle.entranceTime = this.vehicleEdit.entranceTime == null ? null : new Date(this.vehicleEdit.entranceTime);
+        vehicle.exitTime = this.vehicleEdit.exitTime == null ? null : new Date(this.vehicleEdit.exitTime);
         let fd = new FormData();
         fd.append("id", this.vehicleEdit.id);
         fd.append("vehicle", JSON.stringify(vehicle))
-        if(this.$refs.editEntranceImage.files.length>0){
-          fd.append("entranceImage", this.$refs.editEntranceImage.files[0]);
+
+
+        if (this.previewEditExitSrc == null) {
+          fd.append("exitImageDelete", true);
+        } else {
+          if (this.$refs.editExitImage.files.length > 0) {
+            fd.append("exitImage", this.$refs.editExitImage.files[0]);
+          }
         }
-        if(this.$refs.editExitImage.files.length>0){
-          fd.append("exitImage",this.$refs.editExitImage.files[0]);
+        if (this.previewEditEntranceSrc == null) {
+          fd.append("entranceImageDelete", true);
+        } else {
+          if (this.$refs.editEntranceImage.files.length > 0) {
+            fd.append("entranceImage", this.$refs.editEntranceImage.files[0]);
+          }
         }
-        this.editVehicleService(fd).then(data=>{
+        this.editVehicleService(fd).then(data => {
           console.log(data);
-          this.dialogEditForm=false;
+          this.dialogEditForm = false;
           this.reload();
         })
 
@@ -411,15 +450,15 @@
         vehicle.exitTime = this.vehicleAdd.exitTime
         let fd = new FormData();
         fd.append("vehicle", JSON.stringify(vehicle))
-        if(this.$refs.addEntranceImage.files.length>0){
+        if (this.$refs.addEntranceImage.files.length > 0) {
           fd.append("entranceImage", this.$refs.addEntranceImage.files[0]);
         }
-        if(this.$refs.addExitImage.files.length>0){
-          fd.append("exitImage",this.$refs.addExitImage.files[0]);
+        if (this.$refs.addExitImage.files.length > 0) {
+          fd.append("exitImage", this.$refs.addExitImage.files[0]);
         }
-        this.addVehicleService(fd).then(data=>{
+        this.addVehicleService(fd).then(data => {
           console.log(data);
-          this.dialogAddVehicle=false;
+          this.dialogAddVehicle = false;
           this.reload();
         })
       },
@@ -447,7 +486,7 @@
           return value;
         }
       },
-      dateFormatEdit(value){
+      dateFormatEdit(value) {
         if (value != null) {
           return moment(String(value)).format("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         } else {
@@ -480,6 +519,7 @@
         });
       },
       handleData(data) {
+        this.numberInParking = 0;
         data.forEach((element) => {
           element.entranceTime = this.dateFormat(element.entranceTime);
           element.exitTime = this.dateFormat(element.exitTime);
@@ -487,7 +527,14 @@
           element.entranceImage = "data:image/jpeg;base64," + element.entranceImage;
           element.exitImage = "data:image/jpeg;base64," + element.exitImage;
           this.listVehicles.push(element);
+          if (element.exitTime == "" || element.exitTime == null)
+            this.numberInParking++;
         });
+        if (this.listVehicles.length > 10)
+          this.listVehiclesPage = this.listVehicles.slice(0, 10);
+        else {
+          this.listVehiclesPage = this.listVehicles.slice(0, this.listVehicles.length);
+        }
       },
       resetSearchInput() {
         this.vehicleSearch.licenseNumber = "";

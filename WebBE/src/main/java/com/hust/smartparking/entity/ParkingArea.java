@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import java.sql.Timestamp;
 
 @Data
-@Table(name = "car_parking_areas")
+@Table(name = "parking_areas")
 @Entity
 public class ParkingArea {
     @Id
@@ -21,9 +21,5 @@ public class ParkingArea {
     private Timestamp createdDate;
     @Column(name = "modified_date")
     private Timestamp modifiedDate;
-    @Column(name = "num_in_used")
-    private int numInUsed;
-    @Column(name = "max_number")
-    private int maxNumber;
 
 }

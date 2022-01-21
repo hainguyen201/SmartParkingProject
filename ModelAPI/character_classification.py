@@ -42,6 +42,26 @@ def image_segmentation(character_image, k):
     return segmented_image
 
 
+def getModel():
+    ActivationFunc = 'tanh'
+    input_shape = (28, 28, 3)
+    Nclasses = 35
+    model = Sequential()
+    model.add(Conv2D(filters=6, kernel_size=(5, 5), strides=(1, 1), activation=ActivationFunc, input_shape=input_shape,
+                     padding="same"))
+
+    model.add(AveragePooling2D(pool_size=(2, 2), strides=(2, 2), padding='valid'))
+    model.add(Conv2D(filters=16, kernel_size=(5, 5), strides=(1, 1), activation=ActivationFunc, padding='valid'))
+    model.add(AveragePooling2D(pool_size=(2, 2), strides=(2, 2), padding='valid'))
+    model.add(Flatten())
+    model.add(Dense(units=120, activation=ActivationFunc))
+    model.add(Dense(units=84, activation=ActivationFunc))
+    model.add(Dense(units=Nclasses, activation='softmax'))
+    model.compile(optimizer='adam', loss=tf.keras.losses.categorical_crossentropy, metrics=['accuracy'])
+    model.load_weights(r"classification_model/modelCharacter8Lenet2.h5")
+    return model
+
+
 def get_character():
     inv_map = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: 'A',
                11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F', 16: 'G', 17: 'H', 18: 'I', 19: 'J', 20: 'K',
@@ -86,33 +106,22 @@ def get_character():
     return char_detect
 
 
-def get_character2(ActivationFunc='tanh', input_shape=(28,28,3), Nclasses=35):
+def get_character2(ActivationFunc='tanh', input_shape=(28, 28, 3), Nclasses=35):
     inv_map = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: 'A',
                11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F', 16: 'G', 17: 'H', 18: 'I', 19: 'J', 20: 'K',
                21: 'L', 22: 'M', 23: 'N', 24: 'P', 25: 'Q', 26: 'R', 27: 'S', 28: 'T', 29: 'U', 30: 'V',
                31: 'W', 32: 'X', 33: 'Y', 34: 'Z'}
-    model = Sequential()
-    model.add(Conv2D(filters=6, kernel_size=(5, 5), strides=(1, 1), activation=ActivationFunc, input_shape=input_shape,
-                      padding="same"))
-
-    model.add(AveragePooling2D(pool_size=(2, 2), strides=(2, 2), padding='valid'))
-    model.add(Conv2D(filters=16, kernel_size=(5, 5), strides=(1, 1), activation=ActivationFunc, padding='valid'))
-    model.add(AveragePooling2D(pool_size=(2, 2), strides=(2, 2), padding='valid'))
-    model.add(Flatten())
-    model.add(Dense(units=120, activation=ActivationFunc))
-    model.add(Dense(units=84, activation=ActivationFunc))
-    model.add(Dense(units=Nclasses, activation='softmax'))
-    model.compile(optimizer='adam', loss=tf.keras.losses.categorical_crossentropy, metrics=['accuracy'])
-    model.load_weights(r"classification_model/modelCharacter8.h5")
+    model=getModel()
     image_paths = sort_character(origin_path='predict/character/')
     char_detect = []
     for path in image_paths:
-        img = cv2.imread(path, 0)
+        img = cv2.imread(path)
         print(path)
 
-        # img = image_segmentation(img, 8)
-        img=cv2.threshold(img, 0,255, cv2.THRESH_OTSU)[1]
-        img=cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+        img = image_segmentation(img, 8)
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # img = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU)[1]
+        # img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
         img = cv2.resize(img, (28, 28))
         # plt.imshow(img)
         # plt.show()
@@ -125,4 +134,3 @@ def get_character2(ActivationFunc='tanh', input_shape=(28,28,3), Nclasses=35):
 
 
 get_character2()
-

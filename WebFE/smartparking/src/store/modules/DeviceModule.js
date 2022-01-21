@@ -21,6 +21,10 @@ const actions={
     async searchDeviesService({commit}, device){
         const response= await axios.post(BaseModel.baseUrlDevice+'/search', device, BaseModel.configJsonHeader());
         return BaseModel.handleResponse(response);
+    },
+    async getDeviceByGateService({commit}, gateId){
+        const response = await axios.get(BaseModel.baseUrlDevice+'/gates/'+gateId, BaseModel.configJsonHeader());
+        return BaseModel.handleResponse(response);
     }
 }
 export default {

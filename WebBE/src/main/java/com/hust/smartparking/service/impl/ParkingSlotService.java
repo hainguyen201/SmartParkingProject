@@ -31,7 +31,4 @@ public class ParkingSlotService implements IParkingSlotService {
     public void remove(int id) {
         parkingSlotRepository.deleteById(id);
     }
-    public void getOccupiedParkingInArea(int id){
-
-    }
 }

@@ -38,6 +38,14 @@ public class ParkingSlotController {
             return new ResponseEntity<>(parkingSlotService.save(parkingSlot), HttpStatus.OK);
         }).orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+    @PutMapping("/parking_slots/area/{id}")
+    public ResponseEntity<ParkingSlot> updateParkingSlot(@PathVariable int id){
+        Optional<ParkingSlot> parkingSlotOptional= parkingSlotService.findById(id);
+        return parkingSlotOptional.map(parkingSlot -> {
+            parkingSlot.setParkingAreaId(null);
+            return new ResponseEntity<>(parkingSlotService.save(parkingSlot), HttpStatus.OK);
+        }).orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
     @DeleteMapping("/parking_slots/{id}")
     public ResponseEntity<ParkingSlot> deleteParkingSlot(@PathVariable int id){
         Optional<ParkingSlot> parkingSlotOptional=parkingSlotService.findById(id);

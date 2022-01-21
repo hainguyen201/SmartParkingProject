@@ -47,7 +47,7 @@
         </el-carousel-item>
       </el-carousel>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="reloadParking">Tải lại</el-button>
+        <el-button @click="reloadParkingView">Tải lại</el-button>
         <el-button @click="parkingAreaDetail = false">Đóng</el-button>
       </span>
     </el-dialog>
@@ -74,21 +74,40 @@
       </el-table-column> -->
             <el-table-column label="Thao tác" width="120">
               <template slot-scope="scope">
-                <el-button @click="showParkingDetail(scope.$index, scope.row)" type="text" size="small">Xóa
+                <el-button @click="openDeleteParkingSlot(scope.$index, scope.row)" type="text" size="small">Xóa
                 </el-button>
-                <el-button type="text" size="small" @click="showParkingEdit(scope.$index, scope.row)">Sửa</el-button>
+                <!-- <el-button type="text" size="small" @click="showParkingEdit(scope.$index, scope.row)">Sửa</el-button> -->
               </template>
             </el-table-column>
           </el-table>
           <div class="block">
             <!-- <span class="demonstration">When you have few pages</span> -->
-            <el-pagination layout="prev, pager, next" :total="listParkingSlot.length" :page-size="10" @current-change="handleCurrentChangeSlot">
+            <el-pagination layout="prev, pager, next" :total="listParkingSlot.length" :page-size="10"
+              @current-change="handleCurrentChangeSlot">
             </el-pagination>
           </div>
         </el-col>
         <el-col :span='4'>
-          <el-button>Thêm</el-button>
+          <el-button @click="addParkingSlotDialog=true">Thêm</el-button>
         </el-col>
+        <el-dialog :visible.sync="addParkingSlotDialog" width="20%" append-to-body title="Thêm vị trí đỗ">
+          <el-form :model="parkingSlotAdd">
+            <el-form-item label="Mã vị trí">
+              <el-input v-model="parkingSlotAdd.id"></el-input>
+            </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="addParkingSlot">Thêm</el-button>
+            <el-button @click="addParkingSlotDialog = false">Đóng</el-button>
+          </span>
+        </el-dialog>
+        <el-dialog :visible.sync="deleteParkigSlotDialog" width="20%" append-to-body title="Cảnh báo">
+          <div>Xác nhận xóa vị trí đỗ {{parkingSlotDeleteId}} trong bãi</div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="deleteParkingSlot()">Xóa</el-button>
+            <el-button @click="deleteParkigSlotDialog = false">Đóng</el-button>
+          </span>
+        </el-dialog>
       </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button @click="saveParkingArea">Lưu</el-button>
@@ -118,7 +137,8 @@
     </el-table>
 
     <el-row class="pagination">
-      <el-pagination layout="prev, pager, next" :total="listParkingArea.length" :page-size="10" @current-change="handleCurrentChangeArea">
+      <el-pagination layout="prev, pager, next" :total="listParkingArea.length" :page-size="10"
+        @current-change="handleCurrentChangeArea">
       </el-pagination>
     </el-row>
   </div>
@@ -172,7 +192,8 @@
         parkingAreaViewIndex: null,
         formLabelWidth: '120px',
         listParkingSlot: [],
-        listParkingSlotPage:[],
+        listParkingSlotPage: [],
+        deleteParkigSlotDialog: false,
         parkingAreaEdit: {
           id: null,
           name: null,
@@ -197,52 +218,88 @@
         listParkingAreaPage: [],
         viewNumber: [],
         listParkingAreaLength: 0,
-        loadingArea: false
+        loadingArea: false,
+        parkingSlotDeleteId: 0,
+        addParkingSlotDialog: false,
+        parkingSlotAdd: {
+          id: null
+        }
 
       };
     },
     methods: {
       ...mapActions(['getParkingAreaService', 'getParkingSlotsByIdService', 'getEmptySlotByParkingAreaId',
-        'getAllParkingSlot'
+        'getAllParkingSlot', 'deleteParkingSlotFromAreaService', 'addParkingSlotService'
       ]),
-      handleCurrentChangeSlot(val){
-        // console.log(this.listParkingSlot);
-        var len=this.listParkingSlot.length;
-        var end;
-        if(len<val*10)
-          end=len;
-        else
-          end=val*10;
-        
-      
-        this.listParkingSlotPage=this.listParkingSlot.slice((val-1)*10, end);
+      addParkingSlot() {
+        this.parkingSlotAdd.parkingAreaId = this.parkingAreaEdit.id;
+        this.addParkingSlotService(this.parkingSlotAdd).then(data => {
+          this.reloadParkingSlot();
+        })
+
       },
-      handleCurrentChangeArea(val){
-        var len=this.listParkingArea.length;
+      openDeleteParkingSlot(index, row) {
+        this.deleteParkigSlotDialog = true;
+        this.parkingSlotDeleteId = row.id
+      },
+      deleteParkingSlot() {
+        this.deleteParkingSlotFromAreaService(this.parkingSlotDeleteId).then(data => {
+          this.reloadParkingSlot();
+        })
+      },
+      reloadParkingSlot() {
+        this.getParkingSlotsByIdService(this.parkingAreaEdit.id).then(data3 => {
+          this.listParkingArea[this.parkingAreaViewIndex].parkingSlots = data3;
+          this.listParkingArea[this.parkingAreaViewIndex].maxNumber = data3.length;
+          this.listParkingSlot = data3;
+          this.handleCurrentChangeSlot(1)
+          // if (this.listParkingSlot.length > 10)
+          //   this.listParkingSlotPage = this.listParkingSlot.slice(0, 10);
+          // else {
+          //   this.listParkingSlotPage = this.listParkingSlot.slice(0, this.listParkingSlot.length);
+          // }
+          this.deleteParkigSlotDialog=false;
+          this.addParkingSlotDialog=false;
+
+        })
+      },
+      handleCurrentChangeSlot(val) {
+        // console.log(this.listParkingSlot);
+        var len = this.listParkingSlot.length;
         var end;
-        if(len<val*10)
-          end=len;
+        if (len < val * 10)
+          end = len;
         else
-          end=val*10;
-        
-      
-        this.listParkingAreaPage=this.listParkingArea.slice((val-1)*10, end);
+          end = val * 10;
+        this.listParkingSlotPage = this.listParkingSlot.slice((val - 1) * 10, end);
+      },
+      handleCurrentChangeArea(val) {
+        var len = this.listParkingArea.length;
+        var end;
+        if (len < val * 10)
+          end = len;
+        else
+          end = val * 10;
+
+
+        this.listParkingAreaPage = this.listParkingArea.slice((val - 1) * 10, end);
       },
       handleDetail() {},
       showParkingEdit(index, row) {
         this.parkingEditDialog = true;
+        this.parkingAreaViewIndex = index
         this.parkingAreaEdit.id = row.id;
         this.parkingAreaEdit.name = row.name;
-        this.listParkingArea.forEach(element=>{
-          if(element.id==row.id){
-            this.listParkingSlot=element.parkingSlots;
+        this.listParkingArea.forEach(element => {
+          if (element.id == row.id) {
+            this.listParkingSlot = element.parkingSlots;
           }
         })
         // this.listParkingSlot = this.listParkingArea[index].parkingSlots;
-        if(this.listParkingSlot.length>10)
-          this.listParkingSlotPage=this.listParkingSlot.slice(0, 10);
-        else{
-          this.listParkingSlotPage=this.listParkingSlot.slice(0, this.listParkingSlot.length);
+        if (this.listParkingSlot.length > 10)
+          this.listParkingSlotPage = this.listParkingSlot.slice(0, 10);
+        else {
+          this.listParkingSlotPage = this.listParkingSlot.slice(0, this.listParkingSlot.length);
         }
       },
       saveParkingArea() {
@@ -251,7 +308,7 @@
       showParkingDetail(index, row) {
         this.viewNumber = [];
         this.parkingAreaDetail = true;
-        this.parkingAreaViewIndex = index
+        this.parkingAreaViewIndex = index;
         this.getViewDataParkingArea(index);
       },
       getViewDataParkingArea(index) {
@@ -278,7 +335,7 @@
           indexView++;
         }
       },
-      reloadParking() {
+      reloadParkingView() {
         var id = this.listParkingArea[this.parkingAreaViewIndex].id;
         this.getParkingSlotsByIdService(id).then(data3 => {
           this.listParkingArea[this.parkingAreaViewIndex].parkingSlots = data3;
@@ -290,50 +347,58 @@
 
       },
       getListParkingArea() {
-        this.loadingArea=false
+        this.loadingArea = false
         this.listParkingArea = [];
         this.getParkingAreaService().then(data => {
           // data=data.sort((a, b) => (a.id > b.id) ? 1 : -1)
           data.forEach((element) => {
             element.createdDate = this.dateFormat(element.createdDate);
-            // this.listParkingArea.push(element);
-            // if(this.listParkingAreaPage.length<10)
-            //   this.listParkingAreaPage.push(element);
+            this.listParkingArea.push(element);
+            if (this.listParkingAreaPage.length < 10)
+              this.listParkingAreaPage.push(element);
             this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
               element.numNotInUsed = data2;
               this.getParkingSlotsByIdService(element.id).then(data3 => {
                 element.parkingSlots = data3
                 element.maxNumber = data3.length;
-                this.listParkingArea.push(element);
-                if(this.listParkingAreaPage.length<10)
-                  this.listParkingAreaPage.push(element);
+                // this.listParkingArea.push(element);
+                // if(this.listParkingAreaPage.length<10)
+                //   this.listParkingAreaPage.push(element);
               })
 
             })
           })
 
         })
-        // this.viewNumber= this.listParkingArea.length;
-        // var flag=0
-        // this.listParkingArea.forEach(element=>{
-        //     this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
-        //       element.numNotInUsed = data2;
-        //       this.getParkingSlotsByIdService(element.id).then(data3 => {
-        //         element.parkingSlots = data3
-        //         element.maxNumber = data3.length;
-        //         flag++;
-        //         console.log(flag)
-        //         if(flag==this.listParkingArea.length)
-        //           this.loadingArea=false
+        // // this.viewNumber= this.listParkingArea.length;
+        // var flag = 0
+        // this.listParkingArea.forEach(element => {
+        //   debugger
+        //   this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
+        //     element.numNotInUsed = data2;
+        //     debugger
+        //     this.getParkingSlotsByIdService(element.id).then(data3 => {
+        //       element.parkingSlots = data3
+        //       element.maxNumber = data3.length;
+        //       flag++;
+        //       console.log(flag)
+        //       if (flag == this.listParkingArea.length) {
+        //         if (this.listParkingSlot.length > 10)
+        //           this.listParkingSlotPage = this.listParkingSlot.slice(0, 10);
+        //         else {
+        //           this.listParkingSlotPage = this.listParkingSlot.slice(0, this.listParkingSlot.length);
+        //         }
+        //       }
+        //       // this.loadingArea = false
 
-        //         // this.listParkingArea.push(element);
-        //         // if(this.listParkingAreaPage.length<10)
-        //         //   this.listParkingAreaPage.push(element);
-        //       })
-
+        //       // this.listParkingArea.push(element);
+        //       // if(this.listParkingAreaPage.length<10)
+        //       //   this.listParkingAreaPage.push(element);
         //     })
+
+        //   })
         // })
-        
+
       },
       getListParkingSlot() {
         this.getAllParkingSlot().then(data => {

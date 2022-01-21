@@ -28,6 +28,4 @@ public class User {
     private Timestamp modifiedDate;
     @Column(name = "created_date")
     private Timestamp createdDate;
-    @Column(name = "avatar")
-    private byte[] avatar;
 }

@@ -2,6 +2,7 @@ package com.hust.smartparking.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hust.smartparking.config.Constants;
 import com.hust.smartparking.config.MqttGateway;
 import com.hust.smartparking.entity.Model;
 import com.hust.smartparking.entity.Vehicle;
@@ -40,7 +41,7 @@ public class CameraUploadImageController {
     @Autowired private ModelService modelService;
     @Autowired private VehicleService vehicleService;
     @Autowired private MqttGateway mqttGateway;
-    private String topicServo="channel_hust/servor_sensor";
+//    private String topicServo="channel_hust/servor_sensor";
     @PostMapping("/models/test")
     public ResponseEntity<Map> testModel(@RequestParam("image") MultipartFile file,
                                          @RequestParam("modelurl")String modelUrl){
@@ -143,6 +144,6 @@ public class CameraUploadImageController {
         map.put("gate_id", gateId);
         map.put("status", 1);
         ObjectMapper objectMapper= new ObjectMapper();
-        mqttGateway.senToMqtt(objectMapper.writeValueAsString(map), topicServo);
+        mqttGateway.senToMqtt(objectMapper.writeValueAsString(map), Constants.topicGateServor);
     }
 }

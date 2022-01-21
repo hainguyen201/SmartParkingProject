@@ -92,7 +92,7 @@
         </el-table-column>
         <el-table-column prop="phoneNumber" label="Số điện thoại" width="120">
         </el-table-column>
-        <el-table-column prop="email" label="Email" width="100">
+        <el-table-column prop="email" label="Email" width="220">
         </el-table-column>
         <el-table-column prop="username" label="Tên tài khoản" width="180">
         </el-table-column>
@@ -111,7 +111,7 @@
             <el-input v-model="userEdit.name"></el-input>
           </el-form-item>
           <el-form-item label="Số điện thoại" :label-width="formLabelWidth">
-            <el-input v-model="userEdit.address"></el-input>
+            <el-input v-model="userEdit.phoneNumber"></el-input>
           </el-form-item>
           <el-form-item label="Email" :label-width="formLabelWidth">
             <el-input v-model="userEdit.email"></el-input>
@@ -185,15 +185,15 @@ import {
         dialogEditTitle: '',
         editType: "",
         userTypeOption: [{
-            value: 1,
+            value: "ROLE_ADMIN",
             label: "Quản trị",
           },
           {
-            value: 2,
+            value: "ROLE_USER",
             label: "Người dùng",
           },
           {
-            value: 3,
+            value: "ROLE_GUEST",
             label: "Khách",
           },
         ],

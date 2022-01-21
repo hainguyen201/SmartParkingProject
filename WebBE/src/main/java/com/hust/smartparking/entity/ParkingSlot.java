@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 @Entity
 public class ParkingSlot {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     @Column(name = "type")
@@ -22,6 +22,6 @@ public class ParkingSlot {
     @Column(name="modified_date")
     private Timestamp modifiedDate;
     @Column(name = "parking_area_id")
-    private int parkingAreaId;
+    private Long parkingAreaId;
 
 }

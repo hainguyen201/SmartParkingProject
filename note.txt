@@ -27,4 +27,4 @@ channel_hust/sonic_parking
 "status": 1,
 "type": 1
 }
-
+https://www.pyimagesearch.com/2019/06/03/fine-tuning-with-keras-and-deep-learning/

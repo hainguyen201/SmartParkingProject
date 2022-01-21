@@ -50,6 +50,7 @@ public class DeviceService implements IDeviceService {
         Path<Long> status=devices.get("status");
         Path<String> address=devices.get("address");
         Path<Long> positionId=devices.get("positionId");
+        Path<Long> gateId=devices.get("gateId");
         List<Predicate> predicateList=new ArrayList<>();
         if(device.getName()!=null && !device.getName().isEmpty())
             predicateList.add(cb.like(name, "%"+device.getName()+"%"));
@@ -65,7 +66,15 @@ public class DeviceService implements IDeviceService {
         if(device.getPositionId()!=null){
             predicateList.add(cb.equal(positionId, device.getPositionId()));
         }
+        if(device.getGateId()!=null){
+            predicateList.add(cb.equal(gateId, device.getGateId()));
+        }
         query.select(devices).where(cb.and(predicateList.toArray(new Predicate[predicateList.size()])));
         return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public Iterable<Device> findByGateId(Long id) {
+        return deviceRepository.findByGateId(id);
     }
 }

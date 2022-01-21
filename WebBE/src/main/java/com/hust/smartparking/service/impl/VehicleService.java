@@ -41,6 +41,7 @@ public class VehicleService implements IVehicleService {
     public void remove(int id) {
         vehicleRepository.deleteById(id);
     }
+    @Override
     public Iterable<Vehicle> searchData(Vehicle vehicle, Timestamp fromEntrance, Timestamp toEntrance,
                                         Timestamp fromExit, Timestamp toExit) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();

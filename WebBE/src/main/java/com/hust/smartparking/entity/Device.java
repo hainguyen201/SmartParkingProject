@@ -35,4 +35,6 @@ public class Device {
 
     @Column(name = "position_id")
     private Long positionId;
+    @Column(name = "gate_id")
+    private Long gateId;
 }

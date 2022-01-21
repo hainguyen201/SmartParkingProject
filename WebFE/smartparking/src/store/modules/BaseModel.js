@@ -15,6 +15,7 @@ const modelUrl="http://localhost:8787"
 const modelUrlCaptureImage=modelUrl+"/vehicle_images"
 const baseUrlDevice=baseUrl+"/devices"
 const baseUrlUser=baseUrl+"/users"
+const baseUrlGate=baseUrl+"/gates"
 const baseUrlModel=baseUrl+"/models"
 const baseUrlVehicle= baseUrl+"/vehicles"
 const baseUrlParkingSlot=baseUrl+"/parking_slots"
@@ -54,8 +55,10 @@ export default{
     baseUrlParkingArea,
     baseUrlParkingSlot,
     baseUrlAuth,
+    baseUrlGate,
     configJsonHeader,
     configFormDataHeader,
     modelUrlCaptureImage,
-    handleResponse
+    handleResponse,
+    
 }

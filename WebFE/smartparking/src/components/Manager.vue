@@ -24,7 +24,7 @@
     <el-main>
       <el-row style="height: 100%">
         <el-col :span="4" style="height: 100%">
-          <el-menu class="el-menu-vertical-demo" default-active="3" background-color="#545c64" text-color="#fff"
+          <el-menu class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff"
             active-text-color="#ffd04b" style="height:100%">
             <el-menu-item index="1" @click="handleEntrance">
               <span>Giám sát xe ra vào </span>

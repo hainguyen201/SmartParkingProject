@@ -6,6 +6,7 @@ public class Constants {
     public static String topicSensorSonicParking="channel_hust/sonic_parking";
     public static String topicSensorSonicGate="channel_hust/sonic_gate";
     public static String topicSensorSonicGateAfter="channel_hust/sonic_gate_after";
-    public static String topicSensorSonicGateServor="channel_hust/servor_sensor";
+    public static String topicGateServor="channel_hust/servor_sensor";
+//    public static String topicServo="channel_hust/servor_sensor";
 
 }

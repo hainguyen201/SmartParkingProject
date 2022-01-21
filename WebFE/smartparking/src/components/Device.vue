@@ -2,12 +2,12 @@
   <div style="margin-left: 16px">
     <div class="search">
       <el-row :gutter="20">
-        <el-col :span="3">
+        <!-- <el-col :span="3">
           <span>Tên thiết bị :</span>
         </el-col>
         <el-col :span="4">
           <el-input v-model="deviceSearch.name"></el-input>
-        </el-col>
+        </el-col> -->
         <el-col :span="3">
           <span type="text">Loại thiết bị:</span>
         </el-col>
@@ -26,12 +26,18 @@
             </el-option>
           </el-select>
         </el-col>
+        <el-col :span="3">
+          <span type="text">Mã cổng :</span>
+        </el-col>
+        <el-col :span="5">
+          <el-input v-model="deviceSearch.gateId" type="number"></el-input>
+        </el-col>
       </el-row>
       <el-row :gutter="20">
         <el-col :span="3">
           <span>Địa chỉ: </span>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="5">
           <el-input v-model="deviceSearch.address"></el-input>
         </el-col>
         <el-col :span="3">
@@ -40,6 +46,7 @@
         <el-col :span="5">
           <el-input v-model="deviceSearch.positionId" type="number"></el-input>
         </el-col>
+
       </el-row>
       <el-row :gutter="4" type="flex" justify="start">
         <el-col :span="3">
@@ -55,20 +62,27 @@
         </el-col>
         <el-dialog title="Thêm thiết bị " :visible.sync="dialogAddForm">
           <el-form :model="deviceAdd">
-            <el-form-item label="Tên Thiết bị" :label-width="formLabelWidth">
+            <!-- <el-form-item label="Tên Thiết bị" :label-width="formLabelWidth">
               <el-input v-model="deviceAdd.name"></el-input>
-            </el-form-item>
-            <el-form-item label="Địa chỉ" :label-width="formLabelWidth">
-              <el-input v-model="deviceAdd.address"></el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="Loại Thiết bị" :label-width="formLabelWidth">
               <el-select v-model="deviceAdd.type" clearable placeholder="Select">
                 <el-option v-for="item in deviceTypeOption" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="Mã vị trí" :label-width="formLabelWidth">
+            <el-form-item label="Địa chỉ" :label-width="formLabelWidth" v-if="deviceAdd.type==3">
+              <el-input v-model="deviceAdd.address"></el-input>
+            </el-form-item>
+
+            <el-form-item label="Mã vị trí" :label-width="formLabelWidth" v-if="deviceAdd.type==11">
               <el-input v-model="deviceAdd.positionId" type="number"></el-input>
+            </el-form-item>
+            <el-form-item label="Cổng" :label-width="formLabelWidth" v-if="deviceAdd.type!=11">
+              <el-select v-model="deviceAdd.gateId" clearable placeholder="Select">
+                <el-option v-for="item in listGate" :key="item.gateId" :label="item.gateId" :value="item.gateId">
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
@@ -79,14 +93,14 @@
       </el-row>
     </div>
     <div class="table-info" style="width: 100%">
-      <el-table :data="listDevices" style="width: 100%">
+      <el-table :data="listDevicesPage" style="width: 100%">
         <el-table-column fixed prop="id" label="ID" width="40">
         </el-table-column>
-        <el-table-column prop="name" label="Tên thiết bị" width="140">
+        <!-- <el-table-column prop="name" label="Tên thiết bị" width="140">
+        </el-table-column> -->
+        <el-table-column prop="typeName" label="Loại thiết bị" width="180">
         </el-table-column>
-        <el-table-column prop="type" label="Loại thiết bị" width="165">
-        </el-table-column>
-        <el-table-column prop="status" label="Trạng thái" width="100">
+        <el-table-column prop="statusName" label="Trạng thái" width="100">
         </el-table-column>
         <el-table-column prop="createdDate" label="Ngày tạo" width="100">
         </el-table-column>
@@ -94,36 +108,52 @@
         </el-table-column>
         <el-table-column prop="positionId" label="Mã vị trí" width="100">
         </el-table-column>
+        <el-table-column prop="gateId" label="Mã cổng" width="100">
+        </el-table-column>
         <el-table-column width="150">
           <template slot-scope="scope">
-            <el-button @click="openDialogClone(scope.$index, scope.row)" type="text" size="small">Sao chép</el-button>
+            <!-- <el-button @click="openDialogClone(scope.$index, scope.row)" type="text" size="small">Sao chép</el-button> -->
             <el-button @click="openDialogEdit(scope.$index, scope.row)" type="text" size="small">Sửa</el-button>
             <el-button type="text" size="small" @click="openDeleteDialog(scope.$index, scope.row)">Xóa</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <div class="block">
+            <!-- <span class="demonstration">When you have few pages</span> -->
+            <el-pagination layout="prev, pager, next" :total="listDevices.length" :page-size="10" v-if="listDevices.length>0"
+              @current-change="handleCurrentChangePage">
+            </el-pagination>
+          </div>
       <el-dialog :title="dialogEditTitle " :visible.sync="dialogEditForm">
-        <el-form :model="deviceEdit">
-          <el-form-item label="Tên Thiết bị" :label-width="formLabelWidth">
+        <el-form>
+          <!-- <el-form-item label="Tên Thiết bị" :label-width="formLabelWidth">
             <el-input v-model="deviceEdit.name"></el-input>
-          </el-form-item>
-          <el-form-item label="Địa chỉ" :label-width="formLabelWidth">
-            <el-input v-model="deviceEdit.address"></el-input>
-          </el-form-item>
+          </el-form-item> -->
+
           <el-form-item label="Loại Thiết bị" :label-width="formLabelWidth">
             <el-select v-model="deviceEdit.type" clearable placeholder="Select">
               <el-option v-for="item in deviceTypeOption" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
+
           <el-form-item label="Trạng thái" :label-width="formLabelWidth">
             <el-select v-model="deviceEdit.status" clearable placeholder="Select">
               <el-option v-for="item in deviceStatusOption" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="Mã vị trí" :label-width="formLabelWidth">
+          <el-form-item label="Địa chỉ" :label-width="formLabelWidth" v-if="deviceEdit.type==3">
+            <el-input v-model="deviceEdit.address"></el-input>
+          </el-form-item>
+          <el-form-item label="Mã vị trí" :label-width="formLabelWidth" v-if="deviceEdit.type==11">
             <el-input v-model="deviceEdit.positionId" type="number"></el-input>
+          </el-form-item>
+          <el-form-item label="Mã cổng" :label-width="formLabelWidth" v-if="deviceEdit.type!=11">
+            <el-select v-model="deviceEdit.gateId" clearable placeholder="Select">
+              <el-option v-for="item in listGate" :key="item.gateId" :label="item.gateId" :value="item.gateId">
+              </el-option>
+            </el-select>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -158,9 +188,11 @@
     line-height: 40px;
     font-size: 16px;
   }
-  .el-select{
+
+  .el-select {
     width: 100%
   }
+
 </style>
 <script>
   import {
@@ -177,12 +209,14 @@
           name: '',
           positionId: null,
           type: null,
-          status: null
+          status: null,
+          gateId: null,
         },
         address: "",
         positionId: "",
         deviceStatus: -1,
         listDevices: [],
+        listDevicesPage:[],
         dialogEditForm: false,
         dialogAddForm: false,
         formLabelWidth: "200px",
@@ -199,8 +233,16 @@
           },
         ],
         deviceTypeOption: [{
-            value: 1,
-            label: "Cảm biến khoảng cách",
+            value: 11,
+            label: "Cảm biến vị trí đỗ",
+          },
+          {
+            value: 12,
+            label: "Cảm biến nhận dạng xe",
+          },
+          {
+            value: 13,
+            label: "Cảm biến đóng cổng",
           },
           {
             value: 2,
@@ -219,7 +261,8 @@
           type: null,
           createdDate: null,
           modifiedDate: null,
-          status: null
+          status: null,
+          gateId: null,
         },
         deviceAdd: {
           address: '',
@@ -238,13 +281,23 @@
           createdDate: null,
           modifiedDate: null,
           status: null
-        }
+        },
+        listGate: []
       };
     },
     methods: {
       ...mapActions(["getAllDeviceService", "updateDeviceService", "addDeviceService", "deleteDeviceService",
-        "searchDeviesService"
+        "searchDeviesService", "getAllGateService"
       ]),
+      handleCurrentChangePage(val){
+        var len = this.listDevices.length;
+        var end;
+        if (len < val * 10)
+          end = len;
+        else
+          end = val * 10;
+        this.listDevicesPage = this.listDevices.slice((val - 1) * 10, end);
+      },
       openDialogEdit(index, row) {
         this.dialogEditForm = true;
         this.dialogEditTitle = "Sửa thiết bị";
@@ -252,9 +305,10 @@
         this.deviceEdit.id = row.id;
         this.deviceEdit.name = row.name;
         this.deviceEdit.address = row.address;
-        this.deviceEdit.type = row.type;
+        this.deviceEdit.type = this.listDevices[index].type;
         this.deviceEdit.positionId = row.positionId;
         this.deviceEdit.status = row.status;
+        this.deviceEdit.gateId = this.listDevices[index].gateId;
       },
       openDialogClone(index, row) {
         this.dialogEditForm = true;
@@ -267,20 +321,30 @@
         this.deviceEdit.status = row.status;
       },
       editDevice() {
-        this.deviceEdit.status = this.getDeviceStatusCode(this.deviceEdit.status);
-        this.deviceEdit.type = this.getDeviceTypeCode(this.deviceEdit.type);
+        // this.deviceEdit.status = this.getDeviceStatusCode(this.deviceEdit.status);
+        // this.deviceEdit.type = this.getDeviceTypeCode(this.deviceEdit.type);
         this.deviceEdit.createdDate = null;
         this.deviceEdit.modifiedDate = null;
         if (this.editType === "edit") {
+          //Nếu là vị trí đỗ 
+          if (this.deviceEdit.type == 11) {
+            this.deviceEdit.address = null
+            this.deviceEdit.gateId = null
+          } else {
+            this.deviceEdit.positionId = null;
+            if (this.deviceEdit.type != 3)
+              this.deviceEdit.address = null;
+
+          }
           this.updateDeviceService(this.deviceEdit).then(data => {
             this.dialogEditForm = false
-            this.reload();
+            this.searchData();
           });
-        }else if(this.editType==="copy"){
-          this.deviceEdit.id=null;
-          this.addDeviceService(this.deviceEdit).then(data=>{
+        } else if (this.editType === "copy") {
+          this.deviceEdit.id = null;
+          this.addDeviceService(this.deviceEdit).then(data => {
             this.dialogEditForm = false
-            this.reload();
+            this.searchData();
           })
         }
 
@@ -292,20 +356,29 @@
       deleteDevice() {
         this.deleteDeviceService(this.deviceDelete.id).then(data => {
           this.dialogDeleteVisible = false;
-          this.reload();
+          this.searchData();
         })
       },
       addDevice() {
         this.deviceAdd.status = 0;
+        if (this.deviceAdd.type == 11) {
+          this.deviceAdd.address = null
+          this.deviceAdd.gateId = null
+        } else {
+          this.deviceAdd.positionId = null;
+          if (this.deviceAdd.type != 3)
+            this.deviceAdd.address = null;
+
+        }
         this.addDeviceService(this.deviceAdd).then(data => {
           this.dialogAddForm = false;
-          this.reload();
+          this.searchData();
         })
       },
       searchData() {
         console.log(this.deviceSearch);
         this.searchDeviesService(JSON.stringify(this.deviceSearch)).then(data => {
-          this.listDevices = [];
+          this.listDevices.length=0;
           this.handleData(data);
         })
       },
@@ -317,8 +390,12 @@
         }
       },
       getDeviceTypeLabel(type) {
-        if (type == 1) {
-          return "Cảm biến khoảng cách";
+        if (type == 11) {
+          return "Cảm biến vị trí đỗ";
+        } else if (type == 12) {
+          return "Cảm biến nhận dạng xe";
+        } else if (type == 13) {
+          return "Cảm biến đóng cổng";
         } else if (type == 2) {
           return "Servo thanh chắn";
         } else if (type == 3) {
@@ -326,8 +403,12 @@
         }
       },
       getDeviceTypeCode(type) {
-        if (type == "Cảm biến khoảng cách") {
-          return 1;
+        if (type == "Cảm biến vị trí đỗ") {
+          return 11;
+        } else if (type == "Cảm biến nhận dạng xe") {
+          return 12;
+        } else if (type == "Cảm biến đóng cổng") {
+          return 13;
         } else if (type == "Servo thanh chắn") {
           return 2;
         } else if (type == "Camera") {
@@ -351,18 +432,36 @@
           return status;
       },
       reload() {
-        this.listDevices = [];
         this.getAllDeviceService().then((data) => {
           this.handleData(data);
         });
       },
       handleData(data) {
-        data.forEach((element) => {
-          element.createdDate = this.dateFormat(element.createdDate);
-          element.type = this.getDeviceTypeLabel(element.type);
-          element.status = this.getDeviceStatusLabel(element.status);
-          this.listDevices.push(element);
-        });
+        this.listGate = []
+        this.listDevices=[]
+        this.listDevicesPage=[]
+        const listDeviceLen=data.length;
+        if(listDeviceLen<=0){
+          return;
+        }
+        this.getAllGateService().then(gateData => {
+          this.listGate = gateData
+          data.forEach((element) => {
+            element.createdDate = this.dateFormat(element.createdDate);
+            element.typeName = this.getDeviceTypeLabel(element.type);
+            element.statusName = this.getDeviceStatusLabel(element.status);
+            gateData.forEach((gateElement) => {
+              if (element.gateId === gateElement.gateId) {
+                element.gateName = gateElement.gateName;
+              }
+            })
+            this.listDevices.push(element);
+            if(listDeviceLen==this.listDevices.length){
+              this.handleCurrentChangePage(1)
+            }
+          });
+        })
+
       },
       resetSearchInput() {
         this.deviceSearch.address = "";
@@ -371,6 +470,7 @@
         this.deviceSearch.positionId = "";
         this.deviceSearch.type = null
         this.deviceSearch.name = "";
+        this.deviceSearch.gateId=null;
       }
     },
     created() {
