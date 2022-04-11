@@ -14,7 +14,19 @@ const actions = {
             console.error(error);
             return 'error';
         }
-        
+    },
+    async registerService({commit}, user){
+        const respone= await axios.post(BaseModel.baseUrlRegister,JSON.stringify(user), BaseModel.baseJsonHeader)
+        if(respone.status==200){
+            // this.$message({
+            //     message: 'Bạn đã đăng ký thành công',
+            //     type: 'success'
+            //   });
+            return respone.data;
+        }else {
+            // this.$message.error('Lỗi khi đăng ký');
+              return null
+        }
     }
 }
 

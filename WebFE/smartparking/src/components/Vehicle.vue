@@ -319,7 +319,7 @@
     },
     methods: {
       ...mapActions(["getAllVehicleService", "editVehicleService", "addVehicleService", "deleteVehicleService",
-        "searchVehicleService"
+        "searchVehicleService", 'getNumVehicleInsideService'
       ]),
       handleCurrentChangePage(val) {
         var len = this.listVehicles.length;
@@ -514,12 +514,17 @@
 
       reload() {
         this.listVehicles = [];
+        this.numberInParking=0;
         this.getAllVehicleService().then(data => {
           this.handleData(data);
         });
+        this.getNumVehicleInsideService().then(data=>{
+          this.numberInParking=data;
+        })
+        
       },
       handleData(data) {
-        this.numberInParking = 0;
+        // this.numberInParking = 0;
         data.forEach((element) => {
           element.entranceTime = this.dateFormat(element.entranceTime);
           element.exitTime = this.dateFormat(element.exitTime);
@@ -527,8 +532,8 @@
           element.entranceImage = "data:image/jpeg;base64," + element.entranceImage;
           element.exitImage = "data:image/jpeg;base64," + element.exitImage;
           this.listVehicles.push(element);
-          if (element.exitTime == "" || element.exitTime == null)
-            this.numberInParking++;
+          // if (element.exitTime == "" || element.exitTime == null)
+          //   this.numberInParking++;
         });
         if (this.listVehicles.length > 10)
           this.listVehiclesPage = this.listVehicles.slice(0, 10);

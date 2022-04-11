@@ -6,5 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface UserRepository extends CrudRepository<User, Integer> {
     @Query(value = "select * from users where username =?1", nativeQuery = true)
-    public Iterable<User> findByUsername(String username);
+    Iterable<User> findByUsername(String username);
+
 }

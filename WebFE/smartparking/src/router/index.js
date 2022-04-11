@@ -18,6 +18,10 @@ export default new Router({
       redirect: '/login'
     },
     {
+      path:'/register',
+      component:Register
+    },
+    {
       path:'/manager',
       component:Manager,
       children:[
@@ -53,9 +57,6 @@ export default new Router({
       path:'/login',
       component:Login
     },
-    {
-      path:'/sign-up',
-      component:Register
-    }
+    
   ]
 })

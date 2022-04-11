@@ -41,6 +41,7 @@ public class ParkingAreaController {
         return parkingAreaOptional.map(parkingArea1 -> {
             parkingArea.setModifiedDate(new Timestamp(new Date().getTime()));
             parkingArea.setId(parkingArea1.getId());
+            parkingArea.setCreatedDate(parkingArea1.getCreatedDate());
             return new ResponseEntity<>(parkingAreaService.save(parkingArea), HttpStatus.OK);
         }).orElseGet(()->new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -91,6 +92,18 @@ public class ParkingAreaController {
             }
         }
         return new ResponseEntity<>(empty, HttpStatus.OK);
+    }
+    @PostMapping("/parking_areas/search")
+    public ResponseEntity<Iterable<ParkingArea>> searchData(@RequestBody ParkingArea parkingArea){
+        return new ResponseEntity<>(parkingAreaService.searchData(parkingArea), HttpStatus.OK);
+    }
+    @GetMapping("/parking_areas/search/parkingslot/{id}")
+    public ResponseEntity<List<ParkingArea>> searchByParkingSlot(@PathVariable int id){
+        List<ParkingArea> parkingAreaList = new ArrayList<>();
+        ParkingArea parkingArea= parkingAreaService.findByParkingSlot(id);
+        if(parkingArea!=null)
+            parkingAreaList.add(parkingArea);
+        return new ResponseEntity<>(parkingAreaList, HttpStatus.OK);
     }
 
 }

@@ -47,7 +47,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     public User save(User user) {
         user.setPassword(bcryptEncoder.encode(user.getPassword()));
-        user.setRole("GUEST");
+        user.setRole("ROLE_GUEST");
         user.setCreatedDate(new Timestamp(new Date().getTime()));
         return userRepository.save(user);
     }

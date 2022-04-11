@@ -4,27 +4,42 @@
       <el-col :span="3" class="center"><span class="search-label">Tên bãi đỗ: </span>
       </el-col>
       <el-col :span="4">
-        <el-input placeholder="Nhập tên bãi đỗ" v-model="parkingName"></el-input>
+        <el-input placeholder="Nhập tên bãi đỗ" v-model="parkingAreaSearch.name"></el-input>
       </el-col>
       <el-col :span="3" class="center"><span class="search-label">Mã bãi đỗ: </span>
       </el-col>
       <el-col :span="4">
-        <el-input placeholder="Nhập mã bãi đỗ" v-model="parkingCode"></el-input>
+        <el-input placeholder="Nhập mã bãi đỗ" v-model="parkingAreaSearch.id"></el-input>
       </el-col>
-      <!-- <el-col :span="3"><span class="search-label">Loại bãi đỗ: </span>
+      <el-col :span="3" class="center"><span class="search-label">Mã vị trí đỗ: </span>
       </el-col>
       <el-col :span="4">
-        <el-select v-model="parkingType" filterable placeholder="Chọn loại bãi đỗ" autocomplete>
-          <el-option label="Xe máy" value="1" ></el-option>
-          <el-option label="Ô tô" value="2"></el-option>
-        </el-select>
-      </el-col> -->
+        <el-input placeholder="Nhập mã vị trí đỗ" v-model="parkingAreaSearch.parkingSlotId"></el-input>
+      </el-col>
     </el-row>
 
     <el-row class="buttonSearch" justify="center" style="margin-top: 16px">
-      <el-button type="primary" plain round>
+      <el-button type="primary" plain round @click="searchData">
         <i class="el-icon-search"></i> Tìm kiếm</el-button>
+      <el-button type="primary" plain round @click="resetInput">
+        <i></i> Thiết lập lại</el-button>
+      <el-button type="primary" plain round @click="addParkingAreaDialog=true">
+        <i class="el-icon-plus"></i> Thêm bãi đỗ</el-button>
     </el-row>
+    <el-dialog title="Thêm bãi đỗ" :visible.sync="addParkingAreaDialog">
+      <el-form :model="parkingAreaAdd">
+        <el-form-item label="Mã bãi đỗ" :label-width="formLabelWidth">
+          <el-input v-model="parkingAreaAdd.id"></el-input>
+        </el-form-item>
+        <el-form-item label="Tên bãi đỗ" :label-width="formLabelWidth">
+          <el-input v-model="parkingAreaAdd.name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addParkingAreaDialog = false">Đóng</el-button>
+        <el-button @click="addParkingArea">Thêm</el-button>
+      </span>
+    </el-dialog>
 
 
     <el-dialog :visible.sync="parkingAreaDetail" width="80%">
@@ -76,7 +91,6 @@
               <template slot-scope="scope">
                 <el-button @click="openDeleteParkingSlot(scope.$index, scope.row)" type="text" size="small">Xóa
                 </el-button>
-                <!-- <el-button type="text" size="small" @click="showParkingEdit(scope.$index, scope.row)">Sửa</el-button> -->
               </template>
             </el-table-column>
           </el-table>
@@ -110,28 +124,32 @@
         </el-dialog>
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="saveParkingArea">Lưu</el-button>
+        <el-button @click="editParkingArea">Lưu</el-button>
         <el-button @click="parkingEditDialog = false">Đóng</el-button>
       </span>
     </el-dialog>
 
-    <el-table :data="listParkingAreaPage" style="width: 100%; height: 620px" max-height="620" v-loading="loadingArea">
+    <el-table :data="listParkingAreaPage" style="width: 100%; height: 620px; margin-left: 16px; margin-top:16px"
+      max-height="620" v-loading="loadingArea">
       <el-table-column fixed prop="id" label="Mã bãi đỗ" width="150">
       </el-table-column>
-      <el-table-column prop="name" label="Tên bãi đỗ" width="160">
+      <el-table-column prop="name" label="Tên bãi đỗ" width="200">
       </el-table-column>
       <el-table-column prop="numNotInUsed" label="Chỗ chưa đỗ" width="120">
       </el-table-column>
       <el-table-column prop="maxNumber" label="Số lượng tối đa" width="140">
       </el-table-column>
-      <el-table-column prop="createdDate" label="Ngày tạo" width="160">
+      <el-table-column prop="createdDate" label="Ngày tạo" width="180">
       </el-table-column>
       <!-- <el-table-column prop="type" label="Loại bãi đỗ" width="300">
       </el-table-column> -->
-      <el-table-column label="Thao tác" width="120">
+      <el-table-column label="Thao tác" width="160">
         <template slot-scope="scope">
           <el-button @click="showParkingDetail(scope.$index, scope.row)" type="text" size="small">Chi tiết</el-button>
-          <el-button type="text" size="small" @click="showParkingEdit(scope.$index, scope.row)">Sửa</el-button>
+          <el-button type="text" size="small" @click="openDialogEditParkingArea(scope.$index, scope.row)">Sửa
+          </el-button>
+          <el-button type="text" size="small" @click="openDialogDeleteParkingArea(scope.$index, scope.row)">Xóa
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -141,6 +159,13 @@
         @current-change="handleCurrentChangeArea">
       </el-pagination>
     </el-row>
+    <el-dialog title="Cảnh báo" :visible.sync='deleteParkingAreaDialog' width="20%">
+      <div>Xác nhận xóa bãi đỗ {{parkingAreaDelete.name}}?</div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteParkingArea">Xóa</el-button>
+        <el-button @click="deleteParkingAreaDialog = false">Đóng</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <style scoped>
@@ -194,25 +219,29 @@
         listParkingSlot: [],
         listParkingSlotPage: [],
         deleteParkigSlotDialog: false,
+        addParkingAreaDialog: false,
+        deleteParkingAreaDialog: false,
+        parkingAreaAdd: {
+          id: null,
+          name: null
+        },
         parkingAreaEdit: {
           id: null,
           name: null,
           parkingSlots: []
         },
+        parkingAreaDelete: {
+          id: null,
+          name: null,
+          parkingSlots: []
+        },
+        parkingAreaSearch: {
+          id: null,
+          name: null,
+          parkingSlotId: null,
+        },
         parkingArea: [
-          [{
-              status: 1,
-              id: "A12",
-            },
-            {
-              status: 1,
-              id: "A12",
-            },
-            {
-              status: 1,
-              id: "A12",
-            },
-          ],
+
         ],
         listParkingArea: [],
         listParkingAreaPage: [],
@@ -221,21 +250,98 @@
         loadingArea: false,
         parkingSlotDeleteId: 0,
         addParkingSlotDialog: false,
+
         parkingSlotAdd: {
           id: null
-        }
+        },
+        currentPage: 1,
+
 
       };
     },
     methods: {
       ...mapActions(['getParkingAreaService', 'getParkingSlotsByIdService', 'getEmptySlotByParkingAreaId',
-        'getAllParkingSlot', 'deleteParkingSlotFromAreaService', 'addParkingSlotService'
+        'getAllParkingSlot', 'deleteParkingSlotFromAreaService', 'addParkingSlotService',
+        'searchParkingAreaService', 'editParkingAreaService', 'addParkingAreaService', 'deleteParkingAreaService',
+        'searchParkingAreaByParkingSlot'
       ]),
-      addParkingSlot() {
-        this.parkingSlotAdd.parkingAreaId = this.parkingAreaEdit.id;
-        this.addParkingSlotService(this.parkingSlotAdd).then(data => {
-          this.reloadParkingSlot();
+      openDialogDeleteParkingArea(index, row) {
+        this.deleteParkingAreaDialog = true
+        this.parkingAreaDelete = this.listParkingAreaPage[index];
+      },
+      deleteParkingArea() {
+        if (this.parkingAreaDelete.parkingSlots.length > 0) {
+          this.$message.error("Bãi đỗ vẫn còn vị trí đỗ. Không thể xóa!")
+        } else {
+          this.deleteParkingAreaService(this.parkingAreaDelete.id).then(data => {
+            this.reloadParkingArea();
+            this.deleteParkingAreaDialog = false;
+          })
+        }
+      },
+      addParkingArea() {
+        var isExist = 0;
+        this.getParkingAreaService().then(data => {
+          data.forEach(element => {
+            if (element.id == this.parkingAreaAdd.id) {
+              isExist = 1;
+              this.$message.error("Mã bãi đỗ đã tồn tại");
+              return;
+            }
+          })
+          if (!isExist) {
+            this.addParkingAreaService(this.parkingAreaAdd).then(data => {
+              this.addParkingAreaDialog = false;
+              this.reloadParkingArea();
+            })
+          }
         })
+      },
+      editParkingArea() {
+        const parkingAreaEditData = {
+          id: this.parkingAreaEdit.id,
+          name: this.parkingAreaEdit.name
+        }
+        this.editParkingAreaService(parkingAreaEditData).then(data => {
+          this.parkingEditDialog = false
+          this.reloadParkingArea()
+        })
+      },
+      resetInput() {
+        this.parkingAreaSearch.name = null
+        this.parkingAreaSearch.id = null
+        this.parkingAreaSearch.parkingSlotId=null;
+      },
+      searchData() {
+        if (this.parkingAreaSearch.parkingSlotId != null && this.parkingAreaSearch.parkingSlotId != '') {
+          this.searchParkingAreaByParkingSlot(this.parkingAreaSearch.parkingSlotId).then(data=>{
+            this.handleParkingAreaData(data);
+          })
+        } else {
+          this.searchParkingAreaService(this.parkingAreaSearch).then(data => {
+            this.handleParkingAreaData(data);
+          })
+        }
+
+      },
+      addParkingSlot() {
+        var isExist = 0;
+        this.getAllParkingSlot().then(data => {
+          data.forEach(element => {
+            if (element.id == this.parkingSlotAdd.id) {
+              this.$message.error("Mã vị trí đỗ đã tồn tại")
+              isExist = 1;
+              return;
+            }
+          })
+          if (!isExist) {
+            this.parkingSlotAdd.parkingAreaId = this.parkingAreaEdit.id;
+            this.addParkingSlotService(this.parkingSlotAdd).then(data => {
+              this.reloadParkingSlot();
+            })
+          }
+        })
+
 
       },
       openDeleteParkingSlot(index, row) {
@@ -258,8 +364,8 @@
           // else {
           //   this.listParkingSlotPage = this.listParkingSlot.slice(0, this.listParkingSlot.length);
           // }
-          this.deleteParkigSlotDialog=false;
-          this.addParkingSlotDialog=false;
+          this.deleteParkigSlotDialog = false;
+          this.addParkingSlotDialog = false;
 
         })
       },
@@ -274,18 +380,18 @@
         this.listParkingSlotPage = this.listParkingSlot.slice((val - 1) * 10, end);
       },
       handleCurrentChangeArea(val) {
+        this.currentPage = val
         var len = this.listParkingArea.length;
         var end;
         if (len < val * 10)
           end = len;
         else
           end = val * 10;
-
-
         this.listParkingAreaPage = this.listParkingArea.slice((val - 1) * 10, end);
       },
       handleDetail() {},
-      showParkingEdit(index, row) {
+      openDialogEditParkingArea(index, row) {
+        index = index + (this.currentPage - 1) * 10;
         this.parkingEditDialog = true;
         this.parkingAreaViewIndex = index
         this.parkingAreaEdit.id = row.id;
@@ -306,10 +412,12 @@
 
       },
       showParkingDetail(index, row) {
+        index = index + (this.currentPage - 1) * 10;
         this.viewNumber = [];
         this.parkingAreaDetail = true;
         this.parkingAreaViewIndex = index;
-        this.getViewDataParkingArea(index);
+        index = index +
+          this.getViewDataParkingArea(index);
       },
       getViewDataParkingArea(index) {
         var len = this.listParkingArea[index].parkingSlots.length;
@@ -346,59 +454,35 @@
         })
 
       },
-      getListParkingArea() {
+      handleParkingAreaData(data) {
+        this.listParkingArea = []
+        this.listParkingAreaPage = []
+        const arealen = data.length
+        if (arealen == 0)
+          return;
+        data.forEach((element) => {
+          element.createdDate = this.dateFormat(element.createdDate);
+          this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
+            element.numNotInUsed = data2;
+            this.getParkingSlotsByIdService(element.id).then(data3 => {
+              element.parkingSlots = data3
+              element.maxNumber = data3.length;
+              this.listParkingArea.push(element)
+              if (this.listParkingArea.length == arealen) {
+                this.listParkingArea = this.listParkingArea.sort((a, b) => (a.id > b.id) ? 1 : -1)
+                this.handleCurrentChangeArea(1)
+              }
+            })
+
+          })
+        })
+      },
+      reloadParkingArea() {
         this.loadingArea = false
         this.listParkingArea = [];
         this.getParkingAreaService().then(data => {
-          // data=data.sort((a, b) => (a.id > b.id) ? 1 : -1)
-          data.forEach((element) => {
-            element.createdDate = this.dateFormat(element.createdDate);
-            this.listParkingArea.push(element);
-            if (this.listParkingAreaPage.length < 10)
-              this.listParkingAreaPage.push(element);
-            this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
-              element.numNotInUsed = data2;
-              this.getParkingSlotsByIdService(element.id).then(data3 => {
-                element.parkingSlots = data3
-                element.maxNumber = data3.length;
-                // this.listParkingArea.push(element);
-                // if(this.listParkingAreaPage.length<10)
-                //   this.listParkingAreaPage.push(element);
-              })
-
-            })
-          })
-
+          this.handleParkingAreaData(data);
         })
-        // // this.viewNumber= this.listParkingArea.length;
-        // var flag = 0
-        // this.listParkingArea.forEach(element => {
-        //   debugger
-        //   this.getEmptySlotByParkingAreaId(element.id).then(data2 => {
-        //     element.numNotInUsed = data2;
-        //     debugger
-        //     this.getParkingSlotsByIdService(element.id).then(data3 => {
-        //       element.parkingSlots = data3
-        //       element.maxNumber = data3.length;
-        //       flag++;
-        //       console.log(flag)
-        //       if (flag == this.listParkingArea.length) {
-        //         if (this.listParkingSlot.length > 10)
-        //           this.listParkingSlotPage = this.listParkingSlot.slice(0, 10);
-        //         else {
-        //           this.listParkingSlotPage = this.listParkingSlot.slice(0, this.listParkingSlot.length);
-        //         }
-        //       }
-        //       // this.loadingArea = false
-
-        //       // this.listParkingArea.push(element);
-        //       // if(this.listParkingAreaPage.length<10)
-        //       //   this.listParkingAreaPage.push(element);
-        //     })
-
-        //   })
-        // })
-
       },
       getListParkingSlot() {
         this.getAllParkingSlot().then(data => {
@@ -434,7 +518,7 @@
       },
     },
     created() {
-      this.getListParkingArea();
+      this.reloadParkingArea();
     }
   };
 

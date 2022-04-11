@@ -136,6 +136,10 @@ public class VehicleController {
         }).orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
     }
+    @GetMapping(value = "/vehicles/total_inside")
+    public ResponseEntity<Long> getAllVehicleInsideParking(){
+        return new ResponseEntity<>(vehicleService.getNumVehicleInside(), HttpStatus.OK);
+    }
 
 
 }

@@ -52,8 +52,8 @@ def predict_license(img, indexSave=0):
             y = absolute_y / image_height
             width = w / image_width
             height = h / image_height
-            return x, y, width, height
-            # return image_license
+            # return x, y, width, height
+            return image_license
             # base_dir = '../../Dataset/Car_long_license/'
             # cv2.imwrite(base_dir+str(indexSave)+'.jpg', image_license)
 # indexSave=0
@@ -67,30 +67,30 @@ def predict_license(img, indexSave=0):
 #
 #
 #
-base_dir='../../Dataset/LicenseDetectDatasetTest/'
-
-
-save_dr='../../Dataset/LicenseDetectDatasetTest/'
-# list_images=glob(base_dir+'*.jpg')
-# list_images=list_images.sort()
-list_images=os.listdir(save_dr)
-list_images=[name[:-4] for name in list_images if name[-3:]!='txt']
-index=0
-list_errors=[]
-# print(list_images)
-for image_path in list_images:
-    image=cv2.imread(base_dir+image_path+'.jpg')
-
-    box=predict_license(image)
-    if box!=None:
-        f=open(save_dr +image_path+'.txt', 'x')
-        f.write('%d %.6f %.6f %.6f %.6f'% (0,box[0], box[1], box[2], box[3]))
-        # cv2.imwrite(save_dr + str(index) + '.jpg', image)
-
-    else:
-        list_errors.append(image_path)
-    index += 1
-print(list_errors)
+# base_dir='../../Dataset/LicenseDetectDatasetTest/'
+#
+#
+# save_dr='../../Dataset/LicenseDetectDatasetTest/'
+# # list_images=glob(base_dir+'*.jpg')
+# # list_images=list_images.sort()
+# list_images=os.listdir(save_dr)
+# list_images=[name[:-4] for name in list_images if name[-3:]!='txt']
+# index=0
+# list_errors=[]
+# # print(list_images)
+# for image_path in list_images:
+#     image=cv2.imread(base_dir+image_path+'.jpg')
+#
+#     box=predict_license(image)
+#     if box!=None:
+#         f=open(save_dr +image_path+'.txt', 'x')
+#         f.write('%d %.6f %.6f %.6f %.6f'% (0,box[0], box[1], box[2], box[3]))
+#         # cv2.imwrite(save_dr + str(index) + '.jpg', image)
+#
+#     else:
+#         list_errors.append(image_path)
+#     index += 1
+# print(list_errors)
 
 # f=open('errrors.txt', 'r')
 # save_dr='../../Dataset/LicenseDetectDataset3/'

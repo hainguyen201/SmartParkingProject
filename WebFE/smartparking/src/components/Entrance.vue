@@ -1,12 +1,12 @@
 <template>
-  <div class="entrance" >
+  <div class="entrance">
     <el-row>
       <el-col :span="10">
         <el-row class="selectcamera">
           <el-col :span="6"><span style="line-height: 40px">Chọn cổng:</span></el-col>
           <el-col :span="8">
             <el-select v-model="value" placeholder="Select" filterable @change="updateCamera($event)">
-              <el-option v-for="(item, index) in gate" :key="index" :label="item.gateName" :value="item.gateId">
+              <el-option v-for="(item, index) in listGates" :key="index" :label="item.gateName" :value="item.gateId">
               </el-option>
             </el-select>
           </el-col>
@@ -25,7 +25,7 @@
         <el-row>
           <el-col :span="20">
             Danh sách cổng vào/ra
-            <el-table :data='gate'>
+            <el-table :data='listGatesPage'>
               <el-table-column prop="gateId" label="Mã cổng"></el-table-column>
               <el-table-column prop="gateName" label="Tên cổng"></el-table-column>
               <el-table-column prop="typeName" label="Loại cổng"></el-table-column>
@@ -41,6 +41,14 @@
           <el-col :span="4">
             <el-button @click="openAddDialog">Thêm</el-button>
           </el-col>
+        </el-row>
+        <el-row>
+          <div class="block">
+            <!-- <span class="demonstration">When you have few pages</span> -->
+            <el-pagination layout="prev, pager, next" :total="listGates.length" :page-size="10"
+              v-if="listGates.length>0" :current-page.sync="currentPage" @current-change="handleCurrentChangePage">
+            </el-pagination>
+          </div>
         </el-row>
 
       </el-col>
@@ -79,7 +87,7 @@
       <el-form>
 
         <el-form-item label="Mã cổng" :label-width="formLabelWidth">
-          <el-input v-model="gateEdit.gateId">
+          <el-input v-model="gateEdit.gateId" disabled>
           </el-input>
         </el-form-item>
         <el-form-item label="Tên cổng" :label-width="formLabelWidth">
@@ -129,8 +137,10 @@
     name: "Entrance",
     data() {
       return {
+        currentPage: 1,
         value: null,
-        gate: [],
+        listGates: [],
+        listGatesPage: [],
         imageSrc: null,
         dialogEditForm: false,
         dialogAddForm: false,
@@ -179,6 +189,17 @@
       ...mapActions(['getAllDeviceService', 'getAllGateService', 'updateGateService', 'addGateService',
         'deleteGateService', 'getDeviceByGateService', 'controlGateService'
       ]),
+      handleCurrentChangePage(val) {
+        this.currentPage = val
+        console.log(this.currentPage)
+        var len = this.listGates.length;
+        var end;
+        if (len < val * 10)
+          end = len;
+        else
+          end = val * 10;
+        this.listGatesPage = this.listGates.slice((val - 1) * 10, end);
+      },
       updateCamera(e) {
         console.log(e);
       },
@@ -204,25 +225,39 @@
       },
       openDialogEdit(index, row) {
         this.dialogEditForm = true
-        this.gateEdit.gateId = this.gate[index].gateId;
-        this.gateEdit.gateName = this.gate[index].gateName;
-        this.gateEdit.type = this.gate[index].type;
-        this.gateEdit.vehicleType = this.gate[index].vehicleType;
+        index = (this.currentPage - 1) * 10 + index
+        this.gateEdit.gateId = this.listGates[index].gateId;
+        this.gateEdit.gateName = this.listGates[index].gateName;
+        this.gateEdit.type = this.listGates[index].type;
+        this.gateEdit.vehicleType = this.listGates[index].vehicleType;
       },
       openDeleteDialog(index, row) {
         this.dialogDeleteForm = true
-        this.gateDelete.gateId = this.gate[index].gateId;
-        this.gateDelete.gateName = this.gate[index].gateName;
+        this.gateDelete.gateId = this.listGates[index].gateId;
+        this.gateDelete.gateName = this.listGates[index].gateName;
       },
-      openAddDialog(index, row){
-        this.dialogAddForm=true;
-        
+      openAddDialog(index, row) {
+        this.dialogAddForm = true;
+
       },
-      addGate(){
-        this.addGateService(this.gateAdd).then(data=>{
-          this.dialogAddForm=false;
-          this.reload();
+      addGate() {
+        var isExist=0;
+        this.getAllGateService().then(data => {
+          data.forEach(gateElement => {
+            if (gateElement.gateId == this.gateAdd.gateId) {
+              this.$message.error('Mã cổng tồn tại');
+              isExist=1;
+              return 0;
+            }
+          })
+          if(!isExist)
+            this.addGateService(this.gateAdd).then(data => {
+              this.dialogAddForm = false;
+              this.reload();
+            })
+
         })
+
       },
       editGate() {
         this.updateGateService(this.gateEdit).then(data => {
@@ -247,8 +282,11 @@
         })
       },
       reload() {
-        this.gate = []
+        this.listGates = []
         this.getAllGateService().then(data => {
+          const gateLen = data.length
+          if (gateLen <= 0)
+            return;
           data.forEach(gateElement => {
 
             this.getDeviceByGateService(gateElement.gateId).then(devices => {
@@ -260,8 +298,12 @@
                   gateElement.cameraAddr = device.address;
                 }
               })
-              this.gate.push(gateElement);
-              this.gate.sort((a, b)=> a.gateId-b.gateId)
+              this.listGates.push(gateElement);
+              if (this.listGates.length == gateLen) {
+                this.listGates.sort((a, b) => a.gateId - b.gateId)
+                this.handleCurrentChangePage(this.currentPage);
+              }
+
             })
           })
         })
@@ -276,7 +318,7 @@
     },
     watch: {
       value: function () {
-        this.imageSrc = this.gate.filter(g => g.gateId == this.value)[0].cameraAddr
+        this.imageSrc = this.listGates.filter(g => g.gateId == this.value)[0].cameraAddr
       }
     },
     created() {

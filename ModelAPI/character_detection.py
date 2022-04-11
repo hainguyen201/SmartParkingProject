@@ -20,7 +20,7 @@ def char_detection(license, indexSave=0):
             class_id = np.argmax(scores)
             confidence = scores[class_id]
             if confidence > 0.3:
-                print(confidence)
+                # print(confidence)
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
                 w = int(detection[2] * width)
@@ -36,8 +36,8 @@ def char_detection(license, indexSave=0):
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
     # print(indexes)
-    save_dr = '../../Dataset/CharDetectDatasetCarLong/'
-    f = open(save_dr + 'carlong' + str(indexSave) + '.txt', 'x')
+    # save_dr = '../../Dataset/CharDetectDatasetCarLong/'
+    # f = open(save_dr + 'carlong' + str(indexSave) + '.txt', 'x')
     for i in range(len(boxes)):
         if i in indexes:
             x, y, w, h = boxes[i]
@@ -47,20 +47,20 @@ def char_detection(license, indexSave=0):
             image_height = license.shape[0]
             absolute_x = x + 0.5 * w
             absolute_y = y + 0.5 * h
-            x = absolute_x / image_width
-            y = absolute_y / image_height
-            width = w / image_width
-            height = h / image_height
+            # x = absolute_x / image_width
+            # y = absolute_y / image_height
+            # width = w / image_width
+            # height = h / image_height
 
 
-            f.write('%d %.6f %.6f %.6f %.6f'% (0,x, y, width, height))
-            f.write('\n')
-    cv2.imwrite(save_dr + 'carlong'+str(indexSave) + '.jpg', license)
-    f.close()
-            # cv2.imwrite("predict/character/" + str(y) + '_' + str(x) + '.jpg', image_char)
-list_license_path=glob("../../Dataset/Car_long_license/*.jpg")
-indexSave=1
-for license_path in list_license_path[1:]:
-    license=cv2.imread(license_path)
-    char_detection(license,indexSave)
-    indexSave=indexSave+1
+            # f.write('%d %.6f %.6f %.6f %.6f'% (0,x, y, width, height))
+            # f.write('\n')
+    # cv2.imwrite(save_dr + 'carlong'+str(indexSave) + '.jpg', license)
+    # f.close()
+            cv2.imwrite("predict/character/" + str(y) + '_' + str(x) + '.jpg', image_char)
+# list_license_path=glob("../../Dataset/Car_long_license/*.jpg")
+# indexSave=1
+# for license_path in list_license_path[1:]:
+#     license=cv2.imread(license_path)
+#     char_detection(license,indexSave)
+#     indexSave=indexSave+1

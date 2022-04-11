@@ -1,17 +1,19 @@
 <template>
   <div class="login">
     <el-card>
-      <h2>Login</h2>
+      <h3>Đăng nhập</h3>
       <el-form class="login-form" :model="model" :rules="rules" ref="form" @submit.native.prevent="login">
         <el-form-item prop="username">
-          <el-input v-model="model.username" placeholder="Username" prefix-icon="fas fa-user"></el-input>
+          <el-input v-model="model.username" placeholder="Tài khoản" prefix-icon="fas fa-user"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="model.password" placeholder="Password" type="password" prefix-icon="fas fa-lock">
+          <el-input v-model="model.password" placeholder="Mật khẩu" type="password" prefix-icon="fas fa-lock">
           </el-input>
         </el-form-item>
         <el-form-item>
-          <el-button :loading="loading" class="login-button" type="primary" native-type="submit" block>Login</el-button>
+          <el-button :loading="loading" class="login-button" type="primary" native-type="submit('form')" block>Đăng nhập
+          </el-button>
+          <router-link :to="'register'">Đăng ký</router-link>
         </el-form-item>
         <!-- <a class="forgot-password" href="">Forgot password ?</a> -->
       </el-form>
@@ -98,25 +100,28 @@
         });
       },
       async login() {
-        let valid = await this.$refs.form.validate();
-        if (!valid) {
-          return;
-        }
-        this.loading = true;
-        await this.simulateLogin();
-        this.loginService(this.model).then(data => {
-          this.loading = false;
-          if (data === 'error')
-            this.$message.error("Username or password is invalid");
-          else {
-            if (data.status === 200) {
-              localStorage.setItem('user', JSON.stringify(this.model))
-              localStorage.setItem('token', 'Bearer '+  data.data.token);
-              this.$router.push('/vehicles');
-            }
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            this.loading = true;
+            this.loginService(this.model).then(data => {
+              this.loading = false;
+              if (data === 'error')
+                this.$message.error("Username or password is invalid");
+              else {
+                if (data.status === 200) {
+                  localStorage.setItem('user', JSON.stringify(this.model))
+                  localStorage.setItem('token', 'Bearer ' + data.data.token);
+                  this.$router.push('/vehicles');
+                }
 
+              }
+            })
+          } else {
+            console.log('error submit!!');
+            return false;
           }
-        })
+        });
+
 
         // if (
         //   this.model.username === this.validCredentials.username &&

@@ -22,7 +22,7 @@ const actions = {
     },
     async deleteUserService({commit}, id){
         const response= await axios.delete(BaseModel.baseUrlUser+'/'+id, BaseModel.configJsonHeader());
-        return BaseModel.handleResponse(respone);
+        return BaseModel.handleResponse(response);
     },
     async searchUserService({commit}, user){
         const respone =await axios.post(BaseModel.baseUrlUser+'/search', user, BaseModel.configJsonHeader());

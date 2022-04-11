@@ -52,6 +52,7 @@ public class UserService implements IUserService {
         Path<String> phoneNumber=usersearch.get("phoneNumber");
         Path<String> email=usersearch.get("email");
         Path<String> username=usersearch.get("username");
+        Path<String> role=usersearch.get("role");
         List<Predicate> predicateList=new ArrayList<>();
         if(user.getName()!=null && !user.getName().isEmpty())
             predicateList.add(cb.like(name, "%"+user.getName()+"%"));
@@ -61,7 +62,13 @@ public class UserService implements IUserService {
             predicateList.add(cb.like(email, "%"+user.getEmail()+"%"));
         if(user.getUsername()!=null && !user.getUsername().isEmpty())
             predicateList.add(cb.like(username, "%"+user.getUsername()+"%"));
+        if(user.getRole()!=null && !user.getRole().isEmpty())
+            predicateList.add(cb.equal(role, user.getRole()));
         query.select(usersearch).where(cb.and(predicateList.toArray(new Predicate[predicateList.size()])));
         return entityManager.createQuery(query).getResultList();
+    }
+    @Override
+    public Iterable<User> getUserByUserName(String username){
+        return userRepo.findByUsername(username);
     }
 }

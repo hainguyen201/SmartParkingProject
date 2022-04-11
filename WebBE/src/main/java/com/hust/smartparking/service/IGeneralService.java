@@ -1,5 +1,7 @@
 package com.hust.smartparking.service;
 
+import com.hust.smartparking.entity.Vehicle;
+
 import java.util.Optional;
 
 public interface IGeneralService<T>{

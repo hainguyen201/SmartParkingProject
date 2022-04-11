@@ -107,7 +107,9 @@ public class VehicleService implements IVehicleService {
         predicateList.add(cb.isNotNull(entranceTime));
         query.select(vehicleRoot).where(cb.and(predicateList.toArray(new Predicate[predicateList.size()])));
         return entityManager.createQuery(query).getResultList();
-
-
+    }
+    @Override
+    public Long getNumVehicleInside(){
+        return vehicleRepository.getNumVehicleInside();
     }
 }

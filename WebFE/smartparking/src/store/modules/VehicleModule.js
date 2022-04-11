@@ -23,6 +23,10 @@ const actions={
     async deleteVehicleService({commit}, id){
         const response = await axios.delete(BaseModel.baseUrlVehicle+'/'+id, BaseModel.configJsonHeader())
         return BaseModel.handleResponse(response);
+    },
+    async getNumVehicleInsideService({commit}){
+        const response =await axios.get(BaseModel.baseUrlVehicle+'/total_inside', BaseModel.configJsonHeader())
+        return BaseModel.handleResponse(response);
     }
 }
 export default {

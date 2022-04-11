@@ -4,4 +4,5 @@ import com.hust.smartparking.entity.User;
 
 public interface IUserService extends IGeneralService<User>{
     Iterable<User> searchData(User user);
+    Iterable<User> getUserByUserName(String username);
 }

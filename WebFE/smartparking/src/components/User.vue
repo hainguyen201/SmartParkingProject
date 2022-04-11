@@ -273,7 +273,6 @@ import {
         this.userDelete = row
       },
       deleteuser() {
-        debugger
         this.deleteUserService(this.userDelete.id).then(data => {
           this.dialogDeleteVisible = false;
           this.reload();

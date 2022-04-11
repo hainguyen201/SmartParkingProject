@@ -21,6 +21,12 @@ const baseUrlVehicle= baseUrl+"/vehicles"
 const baseUrlParkingSlot=baseUrl+"/parking_slots"
 const baseUrlParkingArea=baseUrl+"/parking_areas"
 const baseUrlAuth=baseUrl+"/authenticate"
+const baseUrlRegister= baseUrl+ "/register"
+const baseJsonHeader={
+    headers: {
+        'Content-Type': 'application/json'
+    }
+}
 function handleResponse(respone){
     if(respone.status===200){
         return respone.data;
@@ -60,5 +66,7 @@ export default{
     configFormDataHeader,
     modelUrlCaptureImage,
     handleResponse,
+    baseUrlRegister,
+    baseJsonHeader
     
 }

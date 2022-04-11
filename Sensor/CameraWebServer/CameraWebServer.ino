@@ -29,7 +29,8 @@
 //#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
 
 #include "camera_pins.h"
-#define mqtt_server "192.168.1.4"
+//#define mqtt_server "192.168.1.4"
+#define mqtt_server "192.168.137.1"
 #define mqtt_topic_pub_parking "channel_hust/sonic_parking"
 #define mqtt_topic_pub_gate_camera "channel_hust/camera"
 //WiFiClient espClient;

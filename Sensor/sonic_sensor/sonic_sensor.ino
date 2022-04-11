@@ -4,13 +4,14 @@
 #define TRIG_PIN2 D7
 #define ECHO_PIN2 D8
 
-#define TRIG_PIN3 D5
-#define ECHO_PIN3 D6
+#define TRIG_PIN3 D6
+#define ECHO_PIN3 D5
 #define TIME_OUT 5000
 
 
 // Thông tin về MQTT Broker
 #define mqtt_server "192.168.1.4"
+//#define mqtt_server "192.168.137.1"
 #define mqtt_topic_pub_parking "channel_hust/sonic_parking"
 #define mqtt_topic_pub_gate_camera "channel_hust/camera"
 // #define mqtt_topic_pub_gate_after "channel/sonic_gate_after"
@@ -103,9 +104,10 @@ float GetDistance3()
 
   // convert to distance
   distanceCm = duration / 29.1 / 2;
-
+  Serial.println("distance_after: "+String(distanceCm));
   return distanceCm;
 }
+
 void openGate(){
   for(; pos>=1; pos-=1){
     gateServo.write(pos);
@@ -235,16 +237,14 @@ void loop() {
   if (!client.connected()) {
         reconnect();
   }
+  long distance_after = GetDistance3();
   long distance = GetDistance();
   long distance_gate = GetDistance2();
-  if(distance_gate>0){
-    Serial.println("gate distance: "+String(distance_gate));
-    delay(100);
-  }
   
-  
-  long distance_after = GetDistance3();
-//  Serial.println("after: "+String(distance_after));
+  Serial.println(" gate after: "+String(distance_after));
+  Serial.println(" parking slot: "+String(distance));
+  Serial.println(" gate: "+String(distance_gate));
+  delay(1000);
   long isVehicle= 0;
   //sensor kiểm tra xe đang ở vị trí ra vào
   if(distance_gate >10 && distance_gate <50){
@@ -280,23 +280,6 @@ void loop() {
   if(distance_after >10 and distance_after <50){
     Serial.println("after: "+ String(distance_after));
     if(status_gate_after==0){
-      
-      // // Kiểm tra kết nối
-      // if (!client.connected()) {
-      //   reconnect();
-      // }
-      // Serial.println(distance_after);
-      // status_gate_after=0;
-      // delay(10);
-      // StaticJsonDocument<256> doc;
-      // doc["gate_id"]=gate_id;
-      // doc["status"]=1;
-      // doc["value"]=distance_after;
-      // char out[128];
-      // int b= serializeJson(doc, out);
-      // Serial.println("Publish message close servo: ");
-      // Serial.println(out);
-      // client.publish(mqtt_topic_pub_gate_servo, out);
       delay(2000);
     }
     status_gate_after=1;

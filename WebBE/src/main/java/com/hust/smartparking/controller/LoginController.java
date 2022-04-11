@@ -5,6 +5,7 @@ import com.hust.smartparking.entity.JwtRequest;
 import com.hust.smartparking.entity.JwtResponse;
 import com.hust.smartparking.entity.User;
 import com.hust.smartparking.service.impl.JwtUserDetailsService;
+import com.hust.smartparking.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 public class LoginController {
     @Autowired
@@ -27,6 +30,8 @@ public class LoginController {
 
     @Autowired
     private JwtUserDetailsService userDetailsService;
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -51,7 +56,12 @@ public class LoginController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<?> saveUser(@RequestBody User user) throws Exception {
-        return ResponseEntity.ok(userDetailsService.save(user));
+        List<User> userList= (List<User>) userService.getUserByUserName(user.getUsername());
+        if(userList!=null && userList.size()>0){
+            return ResponseEntity.ok("User exist");
+        }else{
+            return ResponseEntity.ok(userDetailsService.save(user));
+        }
     }
 
     private void authenticate(String username, String password) throws Exception {
